@@ -1,45 +1,40 @@
 {
-  "id": "boneyard-drawing-tools",
-  "title": "Boneyard Drawing Tools",
-  "description": "Utilities and tools for Drawings.",
-  "version": "This is auto replaced",
-  "library": "false",
-  "manifestPlusVersion": "1.2.0",
-  "compatibility": {
-    "minimum": 10,
-    "verified": 10,
-    "maximum": 11
-  },
-  "authors": [
-    {
-      "name": "Lich",
-      "url": "https://github.com/operation404",
-      "discord": "operation404#8123"
-    }
-  ],
-  "relationships": {
-    "systems": [],
-    "requires": []
-  },
-  "esmodules": [
-    "scripts/drawing_tools.js"
-  ],
-  "scripts": [
-  ],
-  "styles": [
-    "styles/module.css",
-	"styles/module.css.map",
-  ],
-  "languages": [
-    {
+	"id": "boneyard-drawing-tools",
+	"title": "Boneyard Drawing Tools",
+	"description": "Utilities and tools for Drawings.",
+	"version": "This is auto replaced",
+	"library": "false",
+	"manifestPlusVersion": "1.2.0",
+	"compatibility": {
+		"minimum": 10,
+		"verified": 10,
+		"maximum": 11
+	},
+	"authors": [{
+		"name": "Lich",
+		"url": "https://github.com/operation404",
+		"discord": "operation404#8123"
+	}],
+	"relationships": {
+		"systems": [],
+		"requires": []
+	},
+	"esmodules": [
+		"scripts/drawing_tools.js"
+	],
+	"scripts": [],
+	"styles": [
+		"styles/module.css",
+		"styles/module.css.map"
+	],
+	"languages": [{
 		"lang": "en",
 		"name": "English",
 		"path": "languages/en.json"
-	}
-  ],
-  "url": "This is auto replaced",
-  "manifest": "This is auto replaced",
-  "download": "This is auto replaced",
-  "license": "LICENSE",
-  "readme": "README.md"
+	}],
+	"url": "This is auto replaced",
+	"manifest": "This is auto replaced",
+	"download": "This is auto replaced",
+	"license": "LICENSE",
+	"readme": "README.md"
 }

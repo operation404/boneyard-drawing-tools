@@ -1,7 +1,7 @@
 {
-  "id": "module",
-  "title": "New Module",
-  "description": "",
+  "id": "boneyard-drawing-tools",
+  "title": "Boneyard Drawing Tools",
+  "description": "Utilities and tools for Drawings.",
   "version": "This is auto replaced",
   "library": "false",
   "manifestPlusVersion": "1.2.0",
@@ -12,9 +12,9 @@
   },
   "authors": [
     {
-      "name": "The League of Extraordinary FVTT Developers",
-      "url": "https://github.com/League-of-Foundry-Developers",
-      "discord": "discordID#0001"
+      "name": "Lich",
+      "url": "https://github.com/operation404",
+      "discord": "operation404#8123"
     }
   ],
   "relationships": {
@@ -22,30 +22,23 @@
     "requires": []
   },
   "esmodules": [
-    "scripts/module.js"
+    "scripts/drawing_tools.js"
   ],
   "scripts": [
-    "scripts/lib/lib.js"
   ],
   "styles": [
     "styles/module.css"
   ],
   "languages": [
     {
-      "lang": "en",
-      "name": "English",
-      "path": "languages/en.json"
-    }
+		"lang": "en",
+		"name": "English",
+		"path": "languages/en.json"
+	}
   ],
   "url": "This is auto replaced",
   "manifest": "This is auto replaced",
   "download": "This is auto replaced",
   "license": "LICENSE",
-  "readme": "README.md",
-  "media": [
-    {
-      "type": "icon",
-      "url": "https://avatars2.githubusercontent.com/u/71292812?s=400&u=ccdb4eeb7abf551ca8f314e5a9bfd0479a4d3d41&v=4"
-    }
-  ]
+  "readme": "README.md"
 }

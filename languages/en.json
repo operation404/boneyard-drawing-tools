@@ -1,3 +1,4 @@
 {
-    "MODULE.hello": "hello"
+	"CONTROLS.DrawingStrokeColor": "Set Drawing Stroke Color",
+	"CONTROLS.DrawingFillColor": "Set Drawing Fill Color"
 }

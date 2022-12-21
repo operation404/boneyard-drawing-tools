@@ -1,71 +1,100 @@
-![](https://img.shields.io/badge/Foundry-v0.8.6-informational)
-<!--- Downloads @ Latest Badge -->
-<!--- replace <user>/<repo> with your username/repository -->
-<!--- ![Latest Release Download Count](https://img.shields.io/github/downloads/<user>/<repo>/latest/module.zip) -->
+# Boneyard
+Boneyard is a module for the general use tools I write for my Foundry games. Right now, it includes the following tools:
+- [Quick drawing tool settings menus](#quick-drawing-tools-colorsettings-adjuster)
+- [Socketlib anonymous function wrappers](#socketlib-wrapper-functions-for-executing-anonymous-functions)
 
-<!--- Forge Bazaar Install % Badge -->
-<!--- replace <your-module-name> with the `name` in your manifest -->
-<!--- ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2F<your-module-name>&colorB=4aa94a) -->
+Be sure to meet the [Requirements](#requirements) before using Boneyard.
 
+## Quick drawing tools color/settings adjuster
+Boneyard adds two new tools to the Drawing sidebar. These tools open a quick menu that allows fast adjustment of stroke or fill color, opacity, line width, and fill type. The changes to drawing settings are continuously updated as you make adjustments on the panel, and it can be closed by clicking anywhere off of it.
 
-# How to use this Template to create a versioned Release
+The first tool controls line settings. The menu for lines contains options for changing stroke color, opacity, and line width.
 
-1. Open your repository's releases page.
+![Stroke Example. The line menu has options for changing stroke color, opacity, and width.](https://github.com/operation404/fvtt-boneyard/blob/main/images/stroke_example.png?raw=true)
 
-![Where to click to open repository releases.](https://user-images.githubusercontent.com/7644614/93409301-9fd25080-f864-11ea-9e0c-bdd09e4418e4.png)
+The second tool controls fill settings. The menu for fill contains options for changing fill color, opacity, and fill type.
 
-2. Click "Draft a new release"
+![Stroke Example. The line menu has options for changing stroke color, opacity, and width.](https://github.com/operation404/fvtt-boneyard/blob/main/images/fill_example.png?raw=true)
 
-![Draft a new release button.](https://user-images.githubusercontent.com/7644614/93409364-c1333c80-f864-11ea-89f1-abfcb18a8d9f.png)
+## Socketlib wrapper functions for executing anonymous functions
+It is possible to execute anonymous functions through the wrapper functions Boneyard provides. Boneyard converts the function to a string and sends that string through socketlib to a registered handler which parses the string back into a function and executes it. 
 
-3. Fill out the release version as the tag name.
+```js
+Boneyard.executeForEveryone_wrapper((args) => {
+  console.log(`Greetings ${game.user.name}!`);
+});
 
-If you want to add details at this stage you can, or you can always come back later and edit them.
+// Each user should see 'Greetings' followed by their name
+```
 
-![Release Creation Form](https://user-images.githubusercontent.com/7644614/93409543-225b1000-f865-11ea-9a19-f1906a724421.png)
+The functions can have a single argument called *args* which should be an object that contains any actual arguments the function might need.
 
-4. Hit submit.
+```js
+let result = await Boneyard.executeAsGM_wrapper((args) => {
+  console.log(args.a);
+  console.log(args.b);
+  let c = args.a+args.b;
+  console.log(c);
+  return c;
+}, {a: 5, b: 3});
 
-5. Wait a few minutes.
+result += 1;
+console.log(result);
 
-A Github Action will run to populate the `module.json` and `module.zip` with the correct urls that you can then use to distribute this release. You can check on its status in the "Actions" tab.
+// Should output 5, 3, 8, and 9
+```
 
-![Actions Tab](https://user-images.githubusercontent.com/7644614/93409820-c1800780-f865-11ea-8c6b-c3792e35e0c8.png)
+Keep in mind that when *args* is sent through socketlib it is converted into a JSON object before being converted back on the other client. Therefore any objects *args* possessed will be copies of their original and any references will likely be broken. The function being executed will also be in the global scope instead of the current scope at the time of calling the Boneyard wrapper. This means that while your function cannot access local variables in the scope it was declared in, it can still access global foundry variables such as *game*, as seen in the first example.
 
-6. Grab the module.json url from the release's details page.
+***Note:*** *I am a novice in regards to JS and this might not be an entirely accurate description of what's really going on, but it's my best understanding of the limitations of socketlib.*
 
-![image](https://user-images.githubusercontent.com/7644614/93409960-10c63800-f866-11ea-83f6-270cc5d10b71.png)
+```js
+// This will cause errors when any client other than the sender executes the
+// function because game.user.targets won't correctly persist through the socket
+Boneyard.executeAsGM_wrapper((args)=>{
+    args.targets.forEach(token => { // Throws an error
+        token.actor.update({
+            "data.hp.value": token.actor.data.data.hp.value - 1, // Reduce target hp by 1
+        });
+    });
+}, args={targets: game.user.targets});
 
-This `module.json` will only ever point at this release's `module.zip`, making it useful for sharing a specific version for compatibility purposes.
+// This is a workaround for the above. Token ids are strings and can be safely sent
+// over sockets, the receiving client can then find the desired tokens by their id
+Boneyard.executeAsGM_wrapper((args)=>{
+    args.target_ids.forEach(id => { // Find each token the player had targeted
+        let token = canvas.tokens.placeables.find(token => token.id === id);
+        token.actor.update({
+            "data.hp.value": token.actor.data.data.hp.value - 1, // Reduce target hp by 1
+        });
+    });
+}, args={target_ids: game.user.targets.ids});
+```
 
-7. You can use the url `https://github.com/<user>/<repo>/releases/latest/download/module.json` to refer to the manifest.
+Boneyard provides a wrapper for each of the socketlib call functions.
 
-This is the url you want to use to install the module typically, as it will get updated automatically.
+```js
+static executeAsGM_wrapper = async (func, args) => {...};
+static executeAsUser_wrapper = async (userID, func, args) => {...};
+static executeForAllGMs_wrapper = async (func, args) => {...};
+static executeForOtherGMs_wrapper = async (func, args) => {...};
+static executeForEveryone_wrapper = async (func, args) => {...};
+static executeForOthers_wrapper = async (func, args) => {...};
+static executeForUsers_wrapper = async (recipients, func, args) => {...};
+```
 
-# How to List Your Releases on Package Admin
+If desired, you can also access Boneyard's socket directly as well as use the functions used for convering and recovering functions to and from strings. Since socketlib requires the function being called to be registered, this likely isn't very useful unless you use a world script or modify this module to register more functions, since the only registered function is Boneyard's *boneyard_exec* function and Boneyard already wraps each possible socketlib call with it.
 
-To request a package listing for your first release, go to the [Package Submission Form](https://foundryvtt.com/packages/submit) (accessible via a link at the bottom of the "[Systems and Modules](https://foundryvtt.com/packages/)" page on the Foundry website).
+```js
+let result = await Boneyard.socket.executeAsGM("boneyard_exec", 
+  Boneyard.prepare_func(() => {console.log("Hello!"); return 5;})
+);
+console.log(result);
 
-Fill in the form. "Package Name" must match the name in the module manifest.  Package Title will be the display name for the package.  Package URL should be your repo URL.
-![image](https://user-images.githubusercontent.com/36359784/120664263-b49e5500-c482-11eb-9126-af7006389903.png)
+// Sender should log '5', GM should log 'Hello!'
+```
 
+## Requirements
+The following modules are required for Boneyard to function properly:
+* [socketlib](https://github.com/manuelVo/foundryvtt-socketlib)
 
-One of the Foundry staff will typically get back to you with an approval or any further questions within a few days, and give you access to the package admin pages.
-
-Once you have access to the [module admin page](https://foundryvtt.com/admin/packages/package/), you can release a new version by going into the page for your module, scrolling to the bottom, and filling in a new Package Version.
-
-When listing a new version, Version should be the version number you set above, and the Manifest URL should be the manifest __for that specific version__ (do not use /latest/ here).
-![image](https://user-images.githubusercontent.com/36359784/120664346-c4b63480-c482-11eb-9d8b-731b50d70939.png)
-
-> ### :warning: Important :warning:
-> 
-> It is very important that you use the specific release manifest url, and not the `/latest` url here. For more details about why this is important and how Foundry Installs/Updates packages, read [this wiki article](https://foundryvtt.wiki/en/development/guides/releases-and-history).
-
-Clicking "Save" in the bottom right will save the new version, which means that anyone installing your module from within Foundry will get that version, and a post will be generated in the #release-announcements channel on the official Foundry VTT Discord.
-
-
-# FoundryVTT Module
-
-Does something, probably
-
-## Changelog

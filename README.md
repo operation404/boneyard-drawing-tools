@@ -12,8 +12,8 @@ Two new tools are added to the Drawing sidebar. These tools open a popup menu th
 
 The first tool controls line settings. The menu for lines contains options for changing stroke color, opacity, and line width.
 
-![Stroke Example. The line menu has options for changing stroke color, opacity, and width.](https://github.com/operation404/boneyard-drawing-tools/blob/master/images/stroke_example.png?raw=true)
+<img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/stroke_example.png?raw=true" width=25%>
 
 The second tool controls fill settings. The menu for fill contains options for changing fill color, opacity, and fill type.
 
-![Fill Example. The fill menu has options for changing fill color, opacity, and fill type.](https://github.com/operation404/boneyard-drawing-tools/blob/master/images/fill_example.png?raw=true)
+<img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/fill_example.png?raw=true" width=25%>

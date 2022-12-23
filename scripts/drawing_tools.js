@@ -59,7 +59,7 @@ class Drawing_Tools extends Application {
 
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
-            template: `modules/boneyard/templates/color_selector.html`,
+            template: `modules/boneyard-drawing-tools/templates/color_selector.html`,
             id: 'drawing_tools',
             popOut: false,
         });

@@ -21,3 +21,4 @@ The second tool controls fill settings. The menu for fill contains options for c
 ## TODO
 - [ ] Add ability to open the menu by some modified click, such as ctrl-click. Need to find a modifier key that isn't used by drawing tools already.
 - [ ] Modify button style so that rather than a brush or paint can icon, the buttons have a box showing the current stroke or fill color.
+- [ ] Add the ability to choose color by using a dropper tool and selecting the color from the canvas.

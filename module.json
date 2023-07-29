@@ -22,7 +22,7 @@
     "requires": []
   },
   "esmodules": [
-    "scripts/drawing_tools.js"
+    "setup.js"
   ],
   "scripts": [],
   "styles": [

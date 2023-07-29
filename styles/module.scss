@@ -1,7 +1,7 @@
 
 /* Using a # allows styling to be applied by id rather than class */
 
-#by-color-selector {
+#by-quick-draw-config {
 	margin: 0;
 	padding: 0;
 	box-shadow: none;
@@ -12,7 +12,18 @@
 	background: #2e353b;
 }
 
-#by-color-dropper {
+#by-color-selector-old {
+	margin: 0;
+	padding: 0;
+	box-shadow: none;
+	border: none;
+	position: absolute;
+	height: fit-content;
+	width: fit-content;
+	background: #2e353b;
+}
+
+#by-color-dropper-old {
 	margin: 0;
 	padding: 0;
 	border: none;
@@ -21,18 +32,18 @@
 	display: list-item;
 }
 
-#by-color-text {
+#by-color-text-old {
 	width: 80px;
 	background: white;
 	display: list-item;
 }
 
-#by-alpha {
+#by-alpha-old {
 	width: 80px;
 	display: list-item;
 }
 
-#by-stroke-width {
+#by-stroke-width-old {
 	width: 80px;
 	display: list-item;
 	text-align: center; 
@@ -41,7 +52,7 @@
 	background: white;
 }
 
-#by-fill-type {
+#by-fill-type-old {
 	text-align:left; 
 	height: auto; 
 	flex-grow: 0;

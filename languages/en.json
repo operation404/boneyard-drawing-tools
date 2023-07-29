@@ -1,4 +1,7 @@
 {
 	"CONTROLS.DrawingStrokeColor": "Set Drawing Stroke Color",
-	"CONTROLS.DrawingFillColor": "Set Drawing Fill Color"
+	"CONTROLS.DrawingFillColor": "Set Drawing Fill Color",
+	"CONTROLS.QuickDrawConfig": "Open Quick Draw Config",
+	"CONTROLS.stroke_color": "Stroke Color",
+	"CONTROLS.fill_color": "Fill Color"
 }

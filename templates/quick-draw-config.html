@@ -3,53 +3,57 @@
 	canvas by default. The z-index can also be manually calculated and added, but I
 	feel it is cleaner to instead determine it by inheriting the property.
 }}
-<div id="by-quick-draw-config" class="app" data-appid="{{appId}}">
-    <div id="by-tool-name-bar">
-        <span id="by-selected-tool" style="white-space: nowrap; flex-grow: 0;">{{current_tool_tooltip}}</span>        
+
+<div id="by-quick-draw-config" class="app" data-appid="{{appId}}" tabindex="0">
+    
+    <div id="by-tool-name-bar" style="background: {{name_bar_color}};">
+        <svg style="height: 16px; width: 100%;">
+            <text class="by-stroke-text" id="by-selected-tool" x="50%" y="50%">{{current_tool_tooltip}}</text>
+        </svg>
     </div>
 
-    <div style="display: flex; flex-direction: row;">
+    <div class="by-row-container" id="by-control-menu">
 
-        {{!
-            TODO
-            Need to go and update all the styling sheet stuff instead of doing all of my styling
-            as inline properties on the elements.
-        }}
+        <div class="by-row-container" id="by-tool-container">
 
-        <div id="by-stroke-menu" style="margin: 2px;">
-            <button id="by-stroke-color" data-tool="stroke" type="button" style="background: {{stroke_color}};">S</button>
-            <input id="by-stroke-color-text" data-tool="stroke" type="text" value="{{stroke_color}}"/>
-            <div>
-                <label for="by-stroke-alpha-label" style="white-space: nowrap; flex-grow: 0;">Opacity: </label>
-                <span id="by-stroke-alpha-label" data-tool="stroke" class="range-value">{{stroke_alpha}}</span>
+            <div id="by-stroke-menu">
+                <button class="by-color-button" id="by-stroke-color" type="button" data-tool="stroke" style="background: {{stroke_color}};">S</button>
+                <input class="by-text-input" id="by-stroke-color-text" data-tool="stroke" type="text" value="{{stroke_color}}"/>
+                <div class="by-row-container">
+                    <label class="by-text" for="by-stroke-alpha-label" >Opacity: </label>
+                    <span class="by-input-label" id="by-stroke-alpha-label" data-tool="stroke">{{stroke_alpha}}</span>
+                </div>
+                <input class="by-range-input" id="by-stroke-alpha" data-tool="stroke" type="range" min="0" max="1" step="0.1" value="{{stroke_alpha}}" />
+                <label class="by-text" for="by-stroke-width">Line width: </label>
+                <div class="by-row-container">
+                    <button class="by-input-companion-button" id="by-stroke-width-minus" type="button" data-tool="stroke" title="Click to subtract 1. Shift-click to subtract 5.">-</button>
+                    <input class="by-text-input" id="by-stroke-width" data-tool="stroke" type="number" step="1" min="0" value="{{stroke_width}}"/>
+                    <button class="by-input-companion-button" id="by-stroke-width-plus" type="button" data-tool="stroke" title="Click to add 1. Shift-click to add 5.">+</button>
+                </div>            
             </div>
-            <input id="by-stroke-alpha" data-tool="stroke" type="range" min="0" max="1" step="0.1" value="{{stroke_alpha}}" />
-            <label for="by-stroke-width" style="white-space: nowrap; flex-grow: 0;">Line width: </label>
-            <div style="display: flex; flex-direction: row;">
-                <button type="button" data-tool="stroke" style="flex-grow: 0; line-height: normal; min-width: 10px; width: 12%;" id="by-stroke-width-minus" title="Click to subtract 1. Shift-click to subtract 5.">-</button>
-                <input id="by-stroke-width" data-tool="stroke" style="flex-grow: 1;" type="number" step="1" min="0" value="{{stroke_width}}" />
-                <button type="button" data-tool="stroke" style="flex-grow: 0; line-height: normal; min-width: 10px; width: 12%;" id="by-stroke-width-plus" title="Click to add 1. Shift-click to add 5.">+</button>
-            </div>            
+
+            <div id="by-fill-menu">
+                <button class="by-color-button" id="by-fill-color" data-tool="fill" type="button" style="background: {{fill_color}};">F</button>
+                <input class="by-text-input" id="by-fill-color-text" data-tool="fill" type="text" value="{{fill_color}}"/>
+                <div class="by-row-container">
+                    <label class="by-text" for="by-fill-alpha-label">Opacity: </label>
+                    <span class="by-input-label" id="by-fill-alpha-label" data-tool="fill">{{fill_alpha}}</span>
+                </div>
+                <input class="by-range-input" id="by-fill-alpha" data-tool="fill" type="range" min="0" max="1" step="0.1" value="{{fill_alpha}}"/>
+                <label class="by-text" for="by-fill-type" data-tool="fill">Fill type: </label>
+                <select class="by-select" id="by-fill-type" data-tool="fill">
+                    <option value="0" {{none_selected}}>None</option>
+                    <option value="1" {{solid_selected}}>Solid</option>
+                    <option value="2" {{pattern_selected}}>Pattern</option>
+                </select>
+            </div>
+
         </div>
 
-        <div id="by-fill-menu" style="margin: 2px;">
-            <button id="by-fill-color" data-tool="fill" type="button" style="background: {{fill_color}};">F</button>
-            <input id="by-fill-color-text" data-tool="fill" type="text" value="{{fill_color}}"/>
-            <div>
-                <label for="by-fill-alpha-label" style="white-space: nowrap; flex-grow: 0;">Opacity: </label>
-                <span id="by-fill-alpha-label" data-tool="fill" class="range-value">{{fill_alpha}}</span>
+        <div id="by-color-selector-background" style="background-image: {{start_gradient}};">
+            <div id="by-color-selector-menu">
+                {{> "modules/boneyard-drawing-tools/templates/color-selector.html"}}
             </div>
-            <input id="by-fill-alpha" data-tool="fill" type="range" min="0" max="1" step="0.1" value="{{fill_alpha}}" />
-            <label for="by-fill-type" data-tool="fill" style="white-space: nowrap; flex-grow: 0;">Fill type: </label>
-            <select id="by-fill-type" data-tool="fill">
-                <option value="0" {{none_selected}}>None</option>
-                <option value="1" {{solid_selected}}>Solid</option>
-                <option value="2" {{pattern_selected}}>Pattern</option>
-            </select>
-        </div>
-
-        <div id="by-color-selector" style="margin: 2px;">
-            {{> "modules/boneyard-drawing-tools/templates/color-selector.html"}}
         </div>
 
     </div>

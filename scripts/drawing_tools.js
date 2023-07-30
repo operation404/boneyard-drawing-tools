@@ -1,5 +1,5 @@
 import {
-    MODULE, SETTING_SIDEBAR_BUTTONS, LAST_TOOL
+    MODULE, SETTING_SIDEBAR_BUTTONS
 } from "./constants.js";
 
 export class Drawing_Tools extends Application {
@@ -31,8 +31,7 @@ export class Drawing_Tools extends Application {
     }
 
     /**
-     * The Drawing_Tools_2 Application window.
-     * @param {string} [current_tool]         Which tool the menu starts with selected, 'stroke' or 'fill'.
+     * The Drawing_Tools Application window.
      * @param {ApplicationOptions} [options]  Default Application configuration options.
      */
     constructor(options = {}) {
@@ -135,7 +134,7 @@ export class Drawing_Tools extends Application {
         document.querySelector("#by-quick-draw-config #by-fill-alpha")
             .addEventListener("input", (e) => {this.alpha_slider_handler(e);});
 
-        // Stroke width input
+        // Stroke width inputs
         document.querySelector("#by-quick-draw-config #by-stroke-width")
             .addEventListener("change", (e) => {this.stroke_width_handler(e);});
         document.querySelector("#by-quick-draw-config #by-stroke-width-minus")
@@ -147,8 +146,9 @@ export class Drawing_Tools extends Application {
         document.querySelector("#by-quick-draw-config #by-fill-type")
             .addEventListener("change", (e) => {this.fill_type_handler(e);});
 
+        // Close when clicking off the window
         document.querySelector("#by-quick-draw-config").addEventListener("focusout", (e) => {
-            this.close_window_handler(e);
+            //this.close_window_handler(e);
         });
     }
 

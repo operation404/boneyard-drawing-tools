@@ -1,12 +1,12 @@
 import {
     MODULE,
-    SETTING_SIDEBAR_BUTTONS,
-    LAST_TOOL
+    SETTING_SIDEBAR_BUTTONS
 } from "./constants.js";
 
 export function prepare_settings() {
 
-    
+    // TODO This currently serves no purpose...
+
     game.settings.register(MODULE, SETTING_SIDEBAR_BUTTONS, {
         name: "SETTINGS.Targeting_Mode_Name",
         hint: "SETTINGS.Targeting_Mode_Hint",
@@ -17,17 +17,5 @@ export function prepare_settings() {
         requiresReload: true,
         //onChange: value => {}, // value is the new value of the setting
     });
-
-    game.settings.register(MODULE, LAST_TOOL, {
-        name: "SETTINGS.Targeting_Mode_Name",
-        hint: "SETTINGS.Targeting_Mode_Hint",
-        scope: 'world', // "world" = sync to db, "client" = local storage
-        config: false, // false if you dont want it to show in module config
-        type: String, // Number, Boolean, String, Object
-        default: "stroke",
-        requiresReload: false,
-        //onChange: value => {}, // value is the new value of the setting
-    });
     
-
 }

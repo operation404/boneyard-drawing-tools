@@ -148,6 +148,7 @@ export class Drawing_Tools extends Application {
 
         // Close when clicking off the window
         document.querySelector("#by-quick-draw-config").addEventListener("focusout", (e) => {
+            // TODO turning this off for debugging purposes, need to re-enable for actual release
             //this.close_window_handler(e);
         });
     }

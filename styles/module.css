@@ -65,6 +65,7 @@ svg.by-fa-button-icon {
   paint-order: stroke;
   stroke-linejoin: round;
   scale: 1.15;
+  pointer-events: none;
 }
 
 button.by-color-button {

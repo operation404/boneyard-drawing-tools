@@ -27,7 +27,9 @@
   "scripts": [],
   "styles": [
     "styles/module.css",
-    "styles/module.css.map"
+    "styles/module.css.map",
+    "styles/color_selector.css",
+    "styles/color_selector.css.map"
   ],
   "languages": [
     {

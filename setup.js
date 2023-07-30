@@ -4,9 +4,7 @@ import { Drawing_Tools } from "./scripts/drawing_tools.js";
 export const preloadHandlebarsTemplates = async function () {
     const templatePaths = [
         // main templates
-        'modules/boneyard-drawing-tools/templates/quick-draw-config.html',
-        // partials
-        'modules/boneyard-drawing-tools/templates/color-selector.html'
+        'modules/boneyard-drawing-tools/templates/quick-draw-config.hbs'
     ];
     return loadTemplates(templatePaths);
 };

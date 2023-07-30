@@ -1,6 +1,7 @@
 import {
     MODULE, SETTING_SIDEBAR_BUTTONS
 } from "./constants.js";
+import { Color_Selector } from "./color_selector.js";
 
 export class Drawing_Tools extends Application {
 
@@ -35,12 +36,13 @@ export class Drawing_Tools extends Application {
      * @param {ApplicationOptions} [options]  Default Application configuration options.
      */
     constructor(options = {}) {
-        super(options);        
+        super(options); 
+        this.color_selector = new Color_Selector();
     }
 
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
-            template: `modules/boneyard-drawing-tools/templates/quick-draw-config.html`,
+            template: `modules/boneyard-drawing-tools/templates/quick-draw-config.hbs`,
             id: MODULE,
             popOut: false,
         });
@@ -111,6 +113,10 @@ export class Drawing_Tools extends Application {
         const color_text_input = this._element[0].querySelector(`#by-quick-draw-config #by-${Drawing_Tools.current_tool}-color-text`);
         color_text_input.setSelectionRange(color_text_input.value.length, color_text_input.value.length);
         color_text_input.focus();
+
+        // Insert the color picker html
+        const color_selector_menu = this._element[0].querySelector(`#by-quick-draw-config #by-color-selector-menu`);
+        this.color_selector.render_and_attach_html(color_selector_menu);
     }
 
     activateListeners(html) {
@@ -151,6 +157,9 @@ export class Drawing_Tools extends Application {
             // TODO turning this off for debugging purposes, need to re-enable for actual release
             //this.close_window_handler(e);
         });
+
+        // Activate color selector's listeners
+        this.color_selector.activate_listeners(html);
     }
 
     color_button_handler(e) {

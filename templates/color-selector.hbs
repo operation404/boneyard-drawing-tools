@@ -1,20 +1,39 @@
 <div class="by-col-container" id="by-color-selector">
 
-    <div class="by-col-container" by="by-color-picker-container">
+    <div class="by-col-container" id="by-color-picker-container">
         <div class="by-row-container">
             <div id="by-canvas-container">
-                <canvas width="{{canvas_width}}px" height="{{canvas_height}}px" id="by-color-picker-canvas"></canvas>
+                <canvas id="by-color-picker-canvas" width="{{canvas_width}}px" height="{{canvas_height}}px"></canvas>
+                <svg id="by-color-picker-marker-container" width="{{canvas_width}}px" height="{{canvas_height}}px">
+                    <circle id="by-color-picker-marker" cx="0" cy="0" r="3" stroke="black" stroke-width="1" fill="transparent" />
+                </svg> 
             </div>
             <div id="by-hue-siderbar-container">
-
+                <canvas id="by-hue-siderbar" width="10px" height="{{canvas_height}}px"></canvas>
+                <svg id="by-hue-siderbar-marker-container" width="15px" height="{{hue_height}}px">
+                    <rect id="by-hue-sidebar-marker" x="0" width="10" height="4" rx="1" stroke="black" stroke-width="1" fill="gray" />
+                </svg>
             </div>
         </div>
         <div class="by-row-container">
-            <div id="by-rgb-input-container">
-
+            <div class="by-row-container" id="by-rgb-input-container">
+                <div class="by-row-container" id="by-red-input-container">
+                    <label class="by-text" for="by-red-text">R</label>
+                    <input class="by-RGB-input" id="by-red-text" type="text" value="{{red}}"/>
+                </div>
+                <div class="by-row-container" id="by-green-input-container">
+                    <label class="by-text" for="by-green-text">G</label>
+                    <input class="by-RGB-input" id="by-green-text" type="text" value="{{green}}"/>
+                </div>
+                <div class="by-row-container" id="by-blue-input-container">
+                    <label class="by-text" for="by-blue-text">B</label>
+                    <input class="by-RGB-input" id="by-blue-text" type="text" value="{{blue}}"/>
+                </div>
             </div>
             <div id="by-dropper-container">
-
+                <button id="by-dropper-button" type="button" style="height: 10px; width: 10px;">
+                    D
+                </button>
             </div>
         </div>
     </div>

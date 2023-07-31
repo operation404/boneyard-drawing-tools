@@ -112,54 +112,59 @@ export class Drawing_Tools extends Application {
         // Focus last edited tool color
         const color_text_input = this._element[0].querySelector(`#by-quick-draw-config #by-${Drawing_Tools.current_tool}-color-text`);
         color_text_input.setSelectionRange(color_text_input.value.length, color_text_input.value.length);
-        color_text_input.focus();
-
-        // Insert the color picker html
-        const color_selector_menu = this._element[0].querySelector(`#by-quick-draw-config #by-color-selector-menu`);
-        this.color_selector.render_and_attach_html(color_selector_menu);
+        color_text_input.focus();        
     }
 
     activateListeners(html) {
         super.activateListeners(html);
+        const drawing_tools_element = html[0];
 
         // Color toggle buttons
-        document.querySelector("#by-quick-draw-config #by-stroke-color")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-color")
             .addEventListener("click", (e) => {this.color_button_handler(e);});
-        document.querySelector("#by-quick-draw-config #by-fill-color")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-color")
             .addEventListener("click", (e) => {this.color_button_handler(e);});
         
         // Hex color input boxes
-        document.querySelector("#by-quick-draw-config #by-stroke-color-text")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-color-text")
             .addEventListener("input", (e) => {this.color_text_handler(e);});
-        document.querySelector("#by-quick-draw-config #by-fill-color-text")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-color-text")
             .addEventListener("input", (e) => {this.color_text_handler(e);});
 
         // Alpha slider inputs
-        document.querySelector("#by-quick-draw-config #by-stroke-alpha")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-alpha")
             .addEventListener("input", (e) => {this.alpha_slider_handler(e);});
-        document.querySelector("#by-quick-draw-config #by-fill-alpha")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-alpha")
             .addEventListener("input", (e) => {this.alpha_slider_handler(e);});
 
         // Stroke width inputs
-        document.querySelector("#by-quick-draw-config #by-stroke-width")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-width")
             .addEventListener("change", (e) => {this.stroke_width_handler(e);});
-        document.querySelector("#by-quick-draw-config #by-stroke-width-minus")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-width-minus")
             .addEventListener("click", (e) => {this.stroke_width_companion_button_handler(e);});
-        document.querySelector("#by-quick-draw-config #by-stroke-width-plus")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-width-plus")
             .addEventListener("click", (e) => {this.stroke_width_companion_button_handler(e);});
 
         // Fill type input
-        document.querySelector("#by-quick-draw-config #by-fill-type")
+        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-type")
             .addEventListener("change", (e) => {this.fill_type_handler(e);});
 
         // Close when clicking off the window
-        document.querySelector("#by-quick-draw-config").addEventListener("focusout", (e) => {
+        drawing_tools_element.addEventListener("focusout", (e) => {
             // TODO turning this off for debugging purposes, need to re-enable for actual release
             //this.close_window_handler(e);
         });
 
+        // Insert the color picker html
+        // Can't be done in _render because that calls super() first, which calls this function.
+        // But at this point html injection should have been done, so it's safe to inject the color selector.
+        const color_selector_menu = this._element[0].querySelector(`#by-quick-draw-config #by-color-selector-menu`);
+        this.color_selector.render_and_attach_html(color_selector_menu);
+        
         // Activate color selector's listeners
-        this.color_selector.activate_listeners(html);
+        this.color_selector.activate_listeners(html, (color) => {
+            this.update_html_colors(color, Drawing_Tools.current_tool, "selector");
+        });
     }
 
     color_button_handler(e) {

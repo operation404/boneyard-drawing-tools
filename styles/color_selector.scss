@@ -1,5 +1,51 @@
-div#by-canvas-container {
+div#by-color-picker-container > div {
+    margin-bottom: 6px;
+}
+
+div#by-canvas-container, div#by-hue-siderbar-container {
     display: flex;
     border-style: groove;
     border-color: black;
+    border-width: 1px;
+}
+
+div#by-hue-siderbar-container {
+    margin-left: 6px;
+}
+
+svg#by-color-picker-marker-container {
+    position: absolute;
+    pointer-events: none;
+}
+
+div#by-hue-siderbar-container {
+    position: relative;
+}
+
+svg#by-hue-siderbar-marker-container {
+    position: absolute;
+    //pointer-events: none;
+    left: -5px;
+    top: -2px;
+}
+
+label.by-text {
+	white-space: nowrap; 
+	flex-grow: 0;
+}
+
+input.by-RGB-input {
+	width: 30px;
+	background: white;
+	//display: list-item;
+}
+
+div.by-row-container {
+	display: flex; 
+	flex-direction: row;
+}
+
+div.by-col-container {
+	display: flex; 
+	flex-direction: column;
 }

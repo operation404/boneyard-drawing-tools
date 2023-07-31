@@ -23,7 +23,7 @@ export class Color_Selector {
             canvas_width: this.options.canvas_width,
             canvas_height: this.options.canvas_height,
             ...data,
-            hue_height: data.canvas_height + 4,
+            hue_height: this.options.canvas_height + 4,
             red: this.options.color.slice(1,3),
             green: this.options.color.slice(3,5),
             blue: this.options.color.slice(5,7),

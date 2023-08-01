@@ -176,6 +176,8 @@ export class Drawing_Tools extends Application {
     }
 
     update_html_colors(color, tool, caller) {
+        // caller is either "button", "text", or "selector"
+
         // Button color and text input for tool always updates
         if (caller !== "button") {
             document.querySelector(`#by-quick-draw-config #by-${tool}-color`).style.setProperty("background", color);

@@ -101,7 +101,9 @@ export class Color_Selector {
         this.green_input = this._element.querySelector("#by-green-text");
         this.blue_input = this._element.querySelector("#by-blue-text");
         this.change_canvas_gradients(this.options.color);
-        this.update_canvas(this.options.color);
+        this.update_canvas(this.options.color);        
+        this.dropper_button = this._element.querySelector("#by-dropper-button");
+        this.random_button = this._element.querySelector("#by-random-button");
     }
 
     initialize_hue_sidebar() {
@@ -155,22 +157,21 @@ export class Color_Selector {
         this.red_input.addEventListener("input", (e) => this.rgb_input_handler(e));
         this.green_input.addEventListener("input", (e) => this.rgb_input_handler(e));
         this.blue_input.addEventListener("input", (e) => this.rgb_input_handler(e));
+    
+        this.dropper_button.addEventListener("click", (e) => this.dropper_button_handler(e));
+        this.random_button.addEventListener("click", (e) => this.random_button_handler(e));
 
         this.color_update_listener = color_update_listener;
     }
 
-    move_canvas_marker(x, y) {
-        x = Math.min(this.options.canvas_width, Math.max(0, x));
-        y = Math.min(this.options.canvas_height, Math.max(0, y));
-        this.canvas_marker.setAttribute('cx', x);
-        this.canvas_marker.setAttribute('cy', y);
-        this.canvas_marker_outline.setAttribute('cx', x);
-        this.canvas_marker_outline.setAttribute('cy', y);
-    }
+    dropper_button_handler(e) {
 
-    move_hue_marker(y) {
-        y = Math.min(this.options.canvas_height, Math.max(0, y));
-        this.hue_marker.setAttribute('y', y);        
+    }
+    
+    random_button_handler(e) {
+        const v = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
+        const s = Color_Selector.color_vec_to_str(v);
+        this.update_html_colors(s, "random");
     }
 
     rgb_input_handler(e) {
@@ -219,6 +220,20 @@ export class Color_Selector {
         this.update_html_colors(this.get_canvas_color(), "canvas");
     }
 
+    move_canvas_marker(x, y) {
+        x = Math.min(this.options.canvas_width, Math.max(0, x));
+        y = Math.min(this.options.canvas_height, Math.max(0, y));
+        this.canvas_marker.setAttribute('cx', x);
+        this.canvas_marker.setAttribute('cy', y);
+        this.canvas_marker_outline.setAttribute('cx', x);
+        this.canvas_marker_outline.setAttribute('cy', y);
+    }
+
+    move_hue_marker(y) {
+        y = Math.min(this.options.canvas_height, Math.max(0, y));
+        this.hue_marker.setAttribute('y', y);        
+    }
+
     get_hue() {
         return this.hue_marker.getAttribute('y') / this.options.canvas_height;
     }
@@ -231,7 +246,7 @@ export class Color_Selector {
     }
     
     update_html_colors(color, caller) {
-        // caller is either "canvas", "rgb", or "external"
+        // caller can be "canvas", "rgb", "external", "dropper", "random"
         if (caller !== "canvas") this.update_canvas(color);
         if (caller !== "rgb") this.update_rgb_fields(color);
         if (caller !== "external") this.color_update_listener?.(color);

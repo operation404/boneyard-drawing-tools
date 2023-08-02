@@ -5,6 +5,7 @@ import { Color_Selector } from "./color_selector.js";
 
 export class Drawing_Tools extends Application {
 
+    static hex_test = /^#[0-9A-F]{6}$/i;
     static current_tool = 'stroke';
 
     static init() {
@@ -25,10 +26,30 @@ export class Drawing_Tools extends Application {
             "icon": "fas fa-paint-brush",
             "title": "CONTROLS.QuickDrawConfig",
             "onClick": () => {
-                new Drawing_Tools().render(true); // TODO should this be defaulted to stroke?
+                new Drawing_Tools().render(true);
             },
             button: true,
         });
+    }
+    
+    static get defaultOptions() {
+        return mergeObject(super.defaultOptions, {
+            template: `modules/boneyard-drawing-tools/templates/quick-draw-config.hbs`,
+            id: MODULE,
+            popOut: false,
+        });
+    }
+
+    static generate_smooth_gradient_style(color, num_stops = 5) {
+        let color_stops = "";
+        for (let i = 0; i < num_stops; i++) {
+            let alpha = Math.sin((i / num_stops)*(Math.PI / 2) + Math.PI) + 1; // value between 1 and 0, sin curve
+            alpha = Math.min(Math.max(Math.floor(alpha * 255), 0), 255); // convert to fraction of 255 and clamp
+            let color_with_alpha = color + alpha.toString(16).padStart(2, '0');
+            color_stops += color_with_alpha;
+            if (i+1 < num_stops) color_stops += ", ";
+        }
+        return `linear-gradient(180deg, ${color_stops}, transparent 30%)`;
     }
 
     /**
@@ -39,14 +60,6 @@ export class Drawing_Tools extends Application {
         super(options);
         const drawing_defaults = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
         this.color_selector = new Color_Selector({color: drawing_defaults[`${Drawing_Tools.current_tool}Color`]});
-    }
-
-    static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
-            template: `modules/boneyard-drawing-tools/templates/quick-draw-config.hbs`,
-            id: MODULE,
-            popOut: false,
-        });
     }
 
     getData() {
@@ -195,25 +208,11 @@ export class Drawing_Tools extends Application {
                 .setProperty("background-image", Drawing_Tools.generate_smooth_gradient_style(color));
 
             if (caller !== "selector") {
-                // TODO Update color selector here when I finally implement it
                 this.color_selector.update_html_colors(color, "external");
             }
         }
     }
 
-    static generate_smooth_gradient_style(color, num_stops = 5) {
-        let color_stops = "";
-        for (let i = 0; i < num_stops; i++) {
-            let alpha = Math.sin((i / num_stops)*(Math.PI / 2) + Math.PI) + 1; // value between 1 and 0, sin curve
-            alpha = Math.min(Math.max(Math.floor(alpha * 255), 0), 255); // convert to fraction of 255 and clamp
-            let color_with_alpha = color + alpha.toString(16).padStart(2, '0');
-            color_stops += color_with_alpha;
-            if (i+1 < num_stops) color_stops += ", ";
-        }
-        return `linear-gradient(180deg, ${color_stops}, transparent 30%)`;
-    }
-
-    static hex_test = /^#[0-9A-F]{6}$/i;
     color_text_handler(e) {
         const tool = e.target.dataset.tool;
         const update_color = Drawing_Tools.hex_test.test(e.target.value) ? e.target.value : '#000000';

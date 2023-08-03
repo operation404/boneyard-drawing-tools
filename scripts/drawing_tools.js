@@ -123,6 +123,8 @@ export class Drawing_Tools extends Application {
         this._element[0].style.left = `${offset_left}px`;
         this._element[0].style.top = `${offset_top}px`;
 
+        // ----
+
         // Focus last edited tool color
         const color_text_input = this._element[0].querySelector(`#by-quick-draw-config #by-${Drawing_Tools.current_tool}-color-text`);
         color_text_input.setSelectionRange(color_text_input.value.length, color_text_input.value.length);

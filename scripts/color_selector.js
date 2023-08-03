@@ -167,13 +167,6 @@ export class Color_Selector {
     dropper_button_handler(e) {
         if (e.pointerId !== 1) return;
 
-        /*
-            TODO
-            I need to remove the focusout listener from the drawing_tools window
-            when this function is first called, and then re-add that listener
-            when exiting dropper mode
-        */
-
         // Add click listener to document, check if target is canvas
         function document_pointerdown_handler (e) {            
             if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
@@ -199,7 +192,7 @@ export class Color_Selector {
                 const grab_color_wrapper = grab_color.bind(this);
                 window.requestAnimationFrame(() => grab_color_wrapper());                
             }
-            this.dropper_button.focus();
+            e.preventDefault();
             e.stopImmediatePropagation();
             exit_dropper_mode();
         }
@@ -216,6 +209,7 @@ export class Color_Selector {
 
         // Add key press listener, pressing any key cancels dropper mode
         function document_keydown_handler (e) {
+            e.preventDefault();
             e.stopImmediatePropagation();
             exit_dropper_mode();
         }

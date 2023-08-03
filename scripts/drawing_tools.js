@@ -165,6 +165,7 @@ export class Drawing_Tools extends Application {
 
         // Close when clicking off the window
         drawing_tools_element.addEventListener("focusout", (e) => {
+            console.log("closing");
             this.close_window_handler(e);
         });
 
@@ -172,7 +173,7 @@ export class Drawing_Tools extends Application {
         // Can't be done in _render because that calls super() first, which calls this function.
         // But at this point html injection should have been done, so it's safe to inject the color selector.
         const color_selector_menu = this._element[0].querySelector(`#by-quick-draw-config #by-color-selector-menu`);
-        this.color_selector.render_and_attach_html(color_selector_menu);
+        this.color_selector.render_and_attach_html(color_selector_menu, drawing_tools_element);
         this.color_selector
         
         // Activate color selector's listeners

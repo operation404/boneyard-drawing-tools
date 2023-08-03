@@ -76,7 +76,7 @@ export class Color_Selector {
         this.down = false;
     }
 
-    render_and_attach_html(parent_element, data = {}) {
+    render_and_attach_html(parent_element, ancestor_element, data = {}) {
         data = {
             canvas_width: this.options.canvas_width,
             canvas_height: this.options.canvas_height,
@@ -86,6 +86,8 @@ export class Color_Selector {
             green: this.options.color.slice(3,5),
             blue: this.options.color.slice(5,7),
         };
+        this.parent_element = parent_element;
+        this.ancestor_element = ancestor_element;
         parent_element.innerHTML = Color_Selector._template(data);
         this._element = parent_element.querySelector("#by-color-selector");
         this.canvas = this._element.querySelector("#by-color-picker-canvas");
@@ -165,7 +167,80 @@ export class Color_Selector {
     }
 
     dropper_button_handler(e) {
+        if (e.pointerId !== 1) return;
 
+        // Add click listener to document, check if target is canvas
+        function document_pointerdown_handler (e) {            
+            if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
+                const gl = e.target.getContext('webgl2'); // only context foundry canvas supports from what I can tell
+                const read_size = 1;
+                const offset = Math.floor(read_size / 2);
+                const pixels = new Uint8Array(read_size * read_size * 4);
+
+                const grab_color = () => {
+                    gl.readPixels(
+                        (e.clientX - offset) * window.devicePixelRatio,
+                        gl.drawingBufferHeight - ((e.clientY - offset) * window.devicePixelRatio),
+                        read_size,
+                        read_size,
+                        gl.RGBA,
+                        gl.UNSIGNED_BYTE,
+                        pixels,
+                    );
+                    const color = Color_Selector.color_vec_to_str([...pixels.slice(0,3)]);                    
+                    this.update_html_colors(color, "dropper");
+                };
+
+                const grab_color_wrapper = grab_color.bind(this);
+                window.requestAnimationFrame(() => grab_color_wrapper());                
+            }
+            this.dropper_button.focus();
+            e.stopImmediatePropagation();
+            remove_dropper_document_handlers();
+        }
+
+        // Add mousemove listener too, preview color as mouse moves
+        function document_mousemove_handler (e) {
+            if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
+
+            } else {
+
+            }
+            e.stopImmediatePropagation();
+        }
+
+        // Add key press listener, pressing any key cancels dropper mode
+        function document_keydown_handler (e) {
+            e.stopImmediatePropagation();
+            remove_dropper_document_handlers();
+        }
+
+        // Add focus out handler just to stop the drawing_tools window from closing when clicking off it
+        function document_focusout_handler (e) {
+            console.log("focusout handler");
+            e.stopImmediatePropagation();
+        }
+
+        // save references to handlers after binding instance context
+        const pointerdown_wrapper = document_pointerdown_handler.bind(this);
+        const mousemove_wrapper = document_mousemove_handler.bind(this);
+        const keydown_wrapper = document_keydown_handler.bind(this);
+        const focusout_wrapper = document_focusout_handler.bind(this);
+        const focus_element = this.ancestor_element;
+
+        // remove all listeners at the end after a click or key press happens
+        function remove_dropper_document_handlers () {
+            document.removeEventListener("pointerdown", pointerdown_wrapper, {capture: true});
+            document.removeEventListener("mousemove", mousemove_wrapper, {capture: true});
+            document.removeEventListener("keydown", keydown_wrapper, {capture: true});
+            //focus_element.removeEventListener("focusout", focusout_wrapper, {capture: true});
+        }
+
+        e.stopImmediatePropagation();
+        document.addEventListener("pointerdown", pointerdown_wrapper, {capture: true});
+        document.addEventListener("mousemove", mousemove_wrapper, {capture: true});
+        document.addEventListener("keydown", keydown_wrapper, {capture: true});
+        //focus_element.addEventListener("focusout", focusout_wrapper, {capture: true, once: true});
     }
     
     random_button_handler(e) {

@@ -220,17 +220,10 @@ export class Color_Selector {
             exit_dropper_mode();
         }
 
-        // Add focus out handler just to stop the drawing_tools window from closing when clicking off it
-        function document_focusout_handler (e) {
-            console.log("focusout handler");
-            e.stopImmediatePropagation();
-        }
-
         // save references to handlers after binding instance context
         const pointerdown_wrapper = document_pointerdown_handler.bind(this);
         const mousemove_wrapper = document_mousemove_handler.bind(this);
         const keydown_wrapper = document_keydown_handler.bind(this);
-        const focusout_wrapper = document_focusout_handler.bind(this);
 
         // remove all listeners at the end after a click or key press happens
         function exit_dropper_mode () {

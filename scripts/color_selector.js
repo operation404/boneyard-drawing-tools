@@ -76,7 +76,7 @@ export class Color_Selector {
         this.down = false;
     }
 
-    render_and_attach_html(parent_element, ancestor_element, data = {}) {
+    render_and_attach_html(parent_element, data = {}) {
         data = {
             canvas_width: this.options.canvas_width,
             canvas_height: this.options.canvas_height,
@@ -86,8 +86,6 @@ export class Color_Selector {
             green: this.options.color.slice(3,5),
             blue: this.options.color.slice(5,7),
         };
-        this.parent_element = parent_element;
-        this.ancestor_element = ancestor_element;
         parent_element.innerHTML = Color_Selector._template(data);
         this._element = parent_element.querySelector("#by-color-selector");
         this.canvas = this._element.querySelector("#by-color-picker-canvas");
@@ -169,6 +167,13 @@ export class Color_Selector {
     dropper_button_handler(e) {
         if (e.pointerId !== 1) return;
 
+        /*
+            TODO
+            I need to remove the focusout listener from the drawing_tools window
+            when this function is first called, and then re-add that listener
+            when exiting dropper mode
+        */
+
         // Add click listener to document, check if target is canvas
         function document_pointerdown_handler (e) {            
             if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
@@ -196,7 +201,7 @@ export class Color_Selector {
             }
             this.dropper_button.focus();
             e.stopImmediatePropagation();
-            remove_dropper_document_handlers();
+            exit_dropper_mode();
         }
 
         // Add mousemove listener too, preview color as mouse moves
@@ -212,7 +217,7 @@ export class Color_Selector {
         // Add key press listener, pressing any key cancels dropper mode
         function document_keydown_handler (e) {
             e.stopImmediatePropagation();
-            remove_dropper_document_handlers();
+            exit_dropper_mode();
         }
 
         // Add focus out handler just to stop the drawing_tools window from closing when clicking off it
@@ -226,21 +231,18 @@ export class Color_Selector {
         const mousemove_wrapper = document_mousemove_handler.bind(this);
         const keydown_wrapper = document_keydown_handler.bind(this);
         const focusout_wrapper = document_focusout_handler.bind(this);
-        const focus_element = this.ancestor_element;
 
         // remove all listeners at the end after a click or key press happens
-        function remove_dropper_document_handlers () {
+        function exit_dropper_mode () {
             document.removeEventListener("pointerdown", pointerdown_wrapper, {capture: true});
             document.removeEventListener("mousemove", mousemove_wrapper, {capture: true});
             document.removeEventListener("keydown", keydown_wrapper, {capture: true});
-            //focus_element.removeEventListener("focusout", focusout_wrapper, {capture: true});
         }
 
         e.stopImmediatePropagation();
         document.addEventListener("pointerdown", pointerdown_wrapper, {capture: true});
         document.addEventListener("mousemove", mousemove_wrapper, {capture: true});
         document.addEventListener("keydown", keydown_wrapper, {capture: true});
-        //focus_element.addEventListener("focusout", focusout_wrapper, {capture: true, once: true});
     }
     
     random_button_handler(e) {

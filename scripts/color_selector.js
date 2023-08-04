@@ -165,22 +165,54 @@ export class Color_Selector {
     }
 
     dropper_button_handler(e) {
-        if (e.pointerId !== 1) return;
+        const dropper_size = 50;
+        const read_size = 5;
+        const offset = Math.floor(read_size / 2);
+        let pixel_id_list = [...Array(read_size * read_size).keys()];
+        const ls = [];
+        for (let i = 0; i < read_size; i++) {
+            ls.push(pixel_id_list.slice(i*read_size, (i+1)*read_size));
+        }
+        pixel_id_list = ls.reverse().flat();
+        const pixels = new Uint8Array(read_size * read_size * 4);
+        const dropper_preview_template = `
+            <div class="by-circle" id="by-dropper-preview" style="width: {{width}}; height: {{height}}; grid-template-columns: repeat({{p_count}}, 1fr);">
+                {{#each p_ids}}
+                    <div id="by-pixel-{{this}}" style="background-color: #000000;"></div>
+                {{/each}}
+            </div>
+        `;
+        const rendered_dropper_preview_template = (Handlebars.compile(dropper_preview_template))({
+            p_ids: pixel_id_list,
+            width: `${dropper_size}px`,
+            height: `${dropper_size}px`,
+            p_count: read_size,
+            p_ratio: (1/read_size)*100,
+        });
+        const element_template = document.createElement('template');
+        element_template.innerHTML = rendered_dropper_preview_template.trim();
+        const dropper_preview = element_template.content.firstChild;
+        move_dropper(e.clientX, e.clientY);
+        document.body.appendChild(dropper_preview);
+
+        function move_dropper(x, y) {
+            x = (x -= dropper_size) < 0 ? 0 : x;
+            y = (y -= dropper_size) < 0 ? 0 : y;
+            dropper_preview.style.left = `${x}px`;
+            dropper_preview.style.top = `${y}px`;
+        }
 
         // Add click listener to document, check if target is canvas
-        function document_pointerdown_handler (e) {            
+        function document_pointerdown_handler (e) {  
             if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
                 const gl = e.target.getContext('webgl2'); // only context foundry canvas supports from what I can tell
-                const read_size = 1;
-                const offset = Math.floor(read_size / 2);
-                const pixels = new Uint8Array(read_size * read_size * 4);
 
                 const grab_color = () => {
                     gl.readPixels(
-                        (e.clientX - offset) * window.devicePixelRatio,
-                        gl.drawingBufferHeight - ((e.clientY - offset) * window.devicePixelRatio),
-                        read_size,
-                        read_size,
+                        e.clientX * window.devicePixelRatio,
+                        gl.drawingBufferHeight - (e.clientY * window.devicePixelRatio) - 1,
+                        1,
+                        1,
                         gl.RGBA,
                         gl.UNSIGNED_BYTE,
                         pixels,
@@ -190,7 +222,7 @@ export class Color_Selector {
                 };
 
                 const grab_color_wrapper = grab_color.bind(this);
-                window.requestAnimationFrame(() => grab_color_wrapper());                
+                window.requestAnimationFrame(() => grab_color_wrapper());
             }
             e.preventDefault();
             e.stopImmediatePropagation();
@@ -199,10 +231,28 @@ export class Color_Selector {
 
         // Add mousemove listener too, preview color as mouse moves
         function document_mousemove_handler (e) {
+            move_dropper(e.clientX, e.clientY);
             if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
+                const gl = e.target.getContext('webgl2'); // only context foundry canvas supports from what I can tell
 
-            } else {
+                const grab_color = () => {
+                    gl.readPixels(
+                        e.clientX * window.devicePixelRatio - offset,
+                        gl.drawingBufferHeight - (e.clientY * window.devicePixelRatio - offset) - 1,
+                        read_size,
+                        read_size,
+                        gl.RGBA,
+                        gl.UNSIGNED_BYTE,
+                        pixels,
+                    );
+                    for (let i = 0; i < pixel_id_list.length; i++) {
+                        const pixel = dropper_preview.querySelector(`#by-pixel-${i}`);
+                        pixel.style['background-color'] = Color_Selector.color_vec_to_str(pixels.slice(i*4, i*4+3));
+                    }
+                };
 
+                const grab_color_wrapper = grab_color.bind(this);
+                window.requestAnimationFrame(() => grab_color_wrapper());                
             }
             e.stopImmediatePropagation();
         }
@@ -224,6 +274,7 @@ export class Color_Selector {
             document.removeEventListener("pointerdown", pointerdown_wrapper, {capture: true});
             document.removeEventListener("mousemove", mousemove_wrapper, {capture: true});
             document.removeEventListener("keydown", keydown_wrapper, {capture: true});
+            dropper_preview.remove();
         }
 
         e.stopImmediatePropagation();

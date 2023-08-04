@@ -13,6 +13,21 @@ div.by-col-container {
   flex-direction: column;
 }
 
+div.by-circle {
+  border-radius: 50%;
+}
+
+div#by-dropper-preview {
+  border: 2px solid black;
+  position: absolute;
+  z-index: 100;
+  display: grid;
+  overflow: hidden;
+  grid-column-gap: 1%;
+  grid-row-gap: 1%;
+  background-color: rgb(53, 53, 53);
+}
+
 div#by-color-picker-container > div {
   margin-bottom: 6px;
 }

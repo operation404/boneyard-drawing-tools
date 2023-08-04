@@ -12,6 +12,8 @@ export class Color_Selector {
         canvas_width: 150,
         canvas_height: 150,
         color: "#FF0000",
+        dropper_preview_size: 50,
+        dropper_read_size: 5,
     };
 
     static partial_hex_test = /^[0-9A-F]{1,2}$/i;
@@ -104,6 +106,7 @@ export class Color_Selector {
         this.update_canvas(this.options.color);        
         this.dropper_button = this._element.querySelector("#by-dropper-button");
         this.random_button = this._element.querySelector("#by-random-button");
+        this.initialize_dropper();
     }
 
     initialize_hue_sidebar() {
@@ -164,65 +167,57 @@ export class Color_Selector {
         this.color_update_listener = color_update_listener;
     }
 
-    dropper_button_handler(e) {
-        const dropper_size = 50;
-        const read_size = 5;
-        const offset = Math.floor(read_size / 2);
-        let pixel_id_list = [...Array(read_size * read_size).keys()];
+    initialize_dropper() {
+        this.offset = Math.floor(this.options.dropper_read_size / 2);
+        let pixel_id_list = [...Array(this.options.dropper_read_size * this.options.dropper_read_size).keys()];
         const ls = [];
-        for (let i = 0; i < read_size; i++) {
-            ls.push(pixel_id_list.slice(i*read_size, (i+1)*read_size));
-        }
-        pixel_id_list = ls.reverse().flat();
-        const pixels = new Uint8Array(read_size * read_size * 4);
-        const dropper_preview_template = `
+        for (let i = 0; i < this.options.dropper_read_size; i++) ls.push(pixel_id_list.slice(i*this.options.dropper_read_size, (i+1)*this.options.dropper_read_size));
+        this.pixel_ids = ls.reverse().flat();
+        this.pixels = new Uint8Array(this.options.dropper_read_size * this.options.dropper_read_size * 4);
+        this.dropper_preview_template = `
             <div class="by-circle" id="by-dropper-preview" style="width: {{width}}; height: {{height}}; grid-template-columns: repeat({{p_count}}, 1fr);">
                 {{#each p_ids}}
                     <div id="by-pixel-{{this}}" style="background-color: #000000;"></div>
                 {{/each}}
             </div>
-        `;
-        const rendered_dropper_preview_template = (Handlebars.compile(dropper_preview_template))({
-            p_ids: pixel_id_list,
-            width: `${dropper_size}px`,
-            height: `${dropper_size}px`,
-            p_count: read_size,
-            p_ratio: (1/read_size)*100,
-        });
-        const element_template = document.createElement('template');
-        element_template.innerHTML = rendered_dropper_preview_template.trim();
-        const dropper_preview = element_template.content.firstChild;
-        move_dropper(e.clientX, e.clientY);
-        document.body.appendChild(dropper_preview);
-
-        function move_dropper(x, y) {
-            x = (x -= dropper_size) < 0 ? 0 : x;
-            y = (y -= dropper_size) < 0 ? 0 : y;
-            dropper_preview.style.left = `${x}px`;
-            dropper_preview.style.top = `${y}px`;
+        `;       
+        this.move_dropper = (x, y) => {
+            x = (x -= this.options.dropper_preview_size) < 0 ? 0 : x;
+            y = (y -= this.options.dropper_preview_size) < 0 ? 0 : y;
+            this.dropper.style.left = `${x}px`;
+            this.dropper.style.top = `${y}px`;
         }
+        this.gl = document.querySelector("canvas#board").getContext("webgl2"); // only context foundry canvas supports from what I can tell
+        this.dropper = null;
+    }
+
+    dropper_button_handler(e) {
+        const element_template = document.createElement('template');
+        element_template.innerHTML = (Handlebars.compile(this.dropper_preview_template))({
+            p_ids: this.pixel_ids,
+            width: `${this.options.dropper_preview_size}px`,
+            height: `${this.options.dropper_preview_size}px`,
+            p_count: this.options.dropper_read_size
+        }).trim();
+        this.dropper = element_template.content.firstChild;
+        document.body.appendChild(this.dropper);
+        this.move_dropper(e.clientX, e.clientY);
 
         // Add click listener to document, check if target is canvas
-        function document_pointerdown_handler (e) {  
+        const document_pointerdown_handler = (e) => {  
             if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
-                const gl = e.target.getContext('webgl2'); // only context foundry canvas supports from what I can tell
-
-                const grab_color = () => {
-                    gl.readPixels(
+                window.requestAnimationFrame(() => {
+                    this.gl.readPixels(
                         e.clientX * window.devicePixelRatio,
-                        gl.drawingBufferHeight - (e.clientY * window.devicePixelRatio) - 1,
+                        this.gl.drawingBufferHeight - (e.clientY * window.devicePixelRatio) - 1,
                         1,
                         1,
-                        gl.RGBA,
-                        gl.UNSIGNED_BYTE,
-                        pixels,
+                        this.gl.RGBA,
+                        this.gl.UNSIGNED_BYTE,
+                        this.pixels,
                     );
-                    const color = Color_Selector.color_vec_to_str([...pixels.slice(0,3)]);                    
-                    this.update_html_colors(color, "dropper");
-                };
-
-                const grab_color_wrapper = grab_color.bind(this);
-                window.requestAnimationFrame(() => grab_color_wrapper());
+                    this.update_html_colors(Color_Selector.color_vec_to_str([...this.pixels.slice(0,3)]), "dropper");
+                });
             }
             e.preventDefault();
             e.stopImmediatePropagation();
@@ -230,57 +225,45 @@ export class Color_Selector {
         }
 
         // Add mousemove listener too, preview color as mouse moves
-        function document_mousemove_handler (e) {
-            move_dropper(e.clientX, e.clientY);
+        const document_mousemove_handler = (e) => {
+            this.move_dropper(e.clientX, e.clientY);
             if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
-                const gl = e.target.getContext('webgl2'); // only context foundry canvas supports from what I can tell
-
-                const grab_color = () => {
-                    gl.readPixels(
-                        e.clientX * window.devicePixelRatio - offset,
-                        gl.drawingBufferHeight - (e.clientY * window.devicePixelRatio - offset) - 1,
-                        read_size,
-                        read_size,
-                        gl.RGBA,
-                        gl.UNSIGNED_BYTE,
-                        pixels,
+                window.requestAnimationFrame(() => {
+                    this.gl.readPixels(
+                        e.clientX * window.devicePixelRatio - this.offset,
+                        this.gl.drawingBufferHeight - (e.clientY * window.devicePixelRatio - this.offset) - 1,
+                        this.options.dropper_read_size,
+                        this.options.dropper_read_size,
+                        this.gl.RGBA,
+                        this.gl.UNSIGNED_BYTE,
+                        this.pixels,
                     );
-                    for (let i = 0; i < pixel_id_list.length; i++) {
-                        const pixel = dropper_preview.querySelector(`#by-pixel-${i}`);
-                        pixel.style['background-color'] = Color_Selector.color_vec_to_str(pixels.slice(i*4, i*4+3));
-                    }
-                };
-
-                const grab_color_wrapper = grab_color.bind(this);
-                window.requestAnimationFrame(() => grab_color_wrapper());                
+                    this.pixel_ids.forEach(p => this.dropper.querySelector(`#by-pixel-${p}`).style['background-color'] = Color_Selector.color_vec_to_str(this.pixels.slice(p*4, p*4+3)));
+                });                
             }
             e.stopImmediatePropagation();
         }
 
         // Add key press listener, pressing any key cancels dropper mode
-        function document_keydown_handler (e) {
+        const document_keydown_handler = (e) => {
             e.preventDefault();
             e.stopImmediatePropagation();
             exit_dropper_mode();
         }
 
-        // save references to handlers after binding instance context
-        const pointerdown_wrapper = document_pointerdown_handler.bind(this);
-        const mousemove_wrapper = document_mousemove_handler.bind(this);
-        const keydown_wrapper = document_keydown_handler.bind(this);
-
         // remove all listeners at the end after a click or key press happens
-        function exit_dropper_mode () {
-            document.removeEventListener("pointerdown", pointerdown_wrapper, {capture: true});
-            document.removeEventListener("mousemove", mousemove_wrapper, {capture: true});
-            document.removeEventListener("keydown", keydown_wrapper, {capture: true});
-            dropper_preview.remove();
+        const exit_dropper_mode = () => {
+            document.removeEventListener("pointerdown", document_pointerdown_handler, {capture: true});
+            document.removeEventListener("mousemove", document_mousemove_handler, {capture: true});
+            document.removeEventListener("keydown", document_keydown_handler, {capture: true});
+            this.dropper.remove();
+            this.dropper = null;
         }
 
         e.stopImmediatePropagation();
-        document.addEventListener("pointerdown", pointerdown_wrapper, {capture: true});
-        document.addEventListener("mousemove", mousemove_wrapper, {capture: true});
-        document.addEventListener("keydown", keydown_wrapper, {capture: true});
+        document.addEventListener("pointerdown", document_pointerdown_handler, {capture: true});
+        document.addEventListener("mousemove", document_mousemove_handler, {capture: true});
+        document.addEventListener("keydown", document_keydown_handler, {capture: true});
     }
     
     random_button_handler(e) {

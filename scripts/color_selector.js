@@ -238,7 +238,7 @@ export class Color_Selector {
                         this.gl.UNSIGNED_BYTE,
                         this.pixels,
                     );
-                    this.pixel_ids.forEach(p => this.dropper.querySelector(`#by-pixel-${p}`).style['background-color'] = Color_Selector.color_vec_to_str(this.pixels.slice(p*4, p*4+3)));
+                    this.pixel_ids.forEach(p => {if (this.dropper) this.dropper.querySelector(`#by-pixel-${p}`).style['background-color'] = Color_Selector.color_vec_to_str(this.pixels.slice(p*4, p*4+3));});
                 });                
             }
             e.stopImmediatePropagation();

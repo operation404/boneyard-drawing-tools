@@ -136,45 +136,38 @@ export class Drawing_Tools extends Application {
         const drawing_tools_element = html[0];
 
         // Color toggle buttons
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-color")
+        drawing_tools_element.querySelector("#by-stroke-color")
             .addEventListener("click", (e) => {this.color_button_handler(e);});
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-color")
+        drawing_tools_element.querySelector("#by-fill-color")
             .addEventListener("click", (e) => {this.color_button_handler(e);});
         
         // Hex color input boxes
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-color-text")
+        drawing_tools_element.querySelector("#by-stroke-color-text")
             .addEventListener("input", (e) => {this.color_text_handler(e);});
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-color-text")
+        drawing_tools_element.querySelector("#by-fill-color-text")
             .addEventListener("input", (e) => {this.color_text_handler(e);});
 
         // Alpha slider inputs
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-alpha")
+        drawing_tools_element.querySelector("#by-stroke-alpha")
             .addEventListener("input", (e) => {this.alpha_slider_handler(e);});
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-alpha")
+        drawing_tools_element.querySelector("#by-fill-alpha")
             .addEventListener("input", (e) => {this.alpha_slider_handler(e);});
 
-        // Stroke width inputs
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-width")
-            .addEventListener("change", (e) => {this.stroke_width_handler(e);});
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-width-minus")
+        // Stroke width buttons
+        drawing_tools_element.querySelector("#by-stroke-width-minus")
             .addEventListener("click", (e) => {this.stroke_width_companion_button_handler(e);});
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-stroke-width-plus")
+        drawing_tools_element.querySelector("#by-stroke-width-plus")
             .addEventListener("click", (e) => {this.stroke_width_companion_button_handler(e);});
-
-        // Fill type input
-        drawing_tools_element.querySelector("#by-quick-draw-config #by-fill-type")
-            .addEventListener("change", (e) => {this.fill_type_handler(e);});
 
         // Close when clicking off the window
         drawing_tools_element.addEventListener("focusout", (e) => {
-            console.log("closing");
             this.close_window_handler(e);
         });
 
         // Insert the color picker html
         // Can't be done in _render because that calls super() first, which calls this function.
         // But at this point html injection should have been done, so it's safe to inject the color selector.
-        const color_selector_menu = this._element[0].querySelector(`#by-quick-draw-config #by-color-selector-menu`);
+        const color_selector_menu = drawing_tools_element.querySelector(`#by-color-selector-menu`);
         this.color_selector.render_and_attach_html(color_selector_menu);
         this.color_selector
         
@@ -220,65 +213,37 @@ export class Drawing_Tools extends Application {
         const tool = e.target.dataset.tool;
         const update_color = Drawing_Tools.hex_test.test(e.target.value) ? e.target.value : '#000000';
         this.update_html_colors(update_color, tool, "text");
-        this.update_default_colors(tool, update_color);
-    }
-
-    update_default_colors(tool, color) {
-        let new_drawing_defaults = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
-        if (new_drawing_defaults === undefined) {
-            console.error("Could not load DrawingsLayer Default Config Settings.");
-            return;
-        }
-        new_drawing_defaults[`${tool}Color`] = color;
-        game.settings.set("core", DrawingsLayer.DEFAULT_CONFIG_SETTING, new_drawing_defaults);
     }
 
     alpha_slider_handler(e) {
         const tool = e.target.dataset.tool;
         document.querySelector(`#by-quick-draw-config #by-${tool}-alpha-label`).textContent = e.target.value;
-        let new_drawing_defaults = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
-        if (new_drawing_defaults === undefined) {
-            console.error("Could not load DrawingsLayer Default Config Settings.");
-            return;
-        }
-        new_drawing_defaults[`${tool}Alpha`] = parseFloat(e.target.value);
-        game.settings.set("core", DrawingsLayer.DEFAULT_CONFIG_SETTING, new_drawing_defaults);
-    }
-
-    stroke_width_handler(e) {
-        const width = !isNaN(e.target.value) ? parseInt(e.target.value) : 12; // Foundry default is 12?
-        this.update_stroke_width(width);
     }
 
     stroke_width_companion_button_handler(e) {
-        const action = e.target.textContent;
-        const shift_pressed = e.shiftKey;
-        const width_input_element = document.querySelector(`#by-quick-draw-config #by-stroke-width`);
-        let width = parseInt(width_input_element.value);
-        const width_delta = (action === "-" ? -1 : +1) * (shift_pressed ? 5 : 1);
-        width += width_delta;
-        width_input_element.value = width;
-        this.update_stroke_width(width);
+        const width_input_element = this._element[0].querySelector(`#by-stroke-width`);
+        let width;
+        width = !isNaN(width = width_input_element.value) ? parseInt(width) : 12;
+        width += (e.target.textContent === "-" ? -1 : +1) * (e.shiftKey ? 5 : 1);
+        width_input_element.value = width < 0 ? 0 : width;
     }
 
-    update_stroke_width(width) {
-        let new_drawing_defaults = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
-        if (new_drawing_defaults === undefined) {
+    update_drawing_layer_config() {
+        let config = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
+        if (config === undefined) {
             console.error("Could not load DrawingsLayer Default Config Settings.");
             return;
         }
-        new_drawing_defaults['strokeWidth'] = width;
-        game.settings.set("core", DrawingsLayer.DEFAULT_CONFIG_SETTING, new_drawing_defaults);
-    }
 
-    fill_type_handler(e) {
-        let new_drawing_defaults = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
-        if (new_drawing_defaults === undefined) {
-            console.error("Could not load DrawingsLayer Default Config Settings.");
-            return;
-        }
-        new_drawing_defaults['fillType'] = parseInt(e.target.value);
-        game.settings.set("core", DrawingsLayer.DEFAULT_CONFIG_SETTING, new_drawing_defaults);
+        let temp;
+        config[`strokeColor`] = Drawing_Tools.hex_test.test(temp = this._element[0].querySelector(`#by-stroke-color-text`).value) ? temp : '#000000';
+        config[`fillColor`] = Drawing_Tools.hex_test.test(temp = this._element[0].querySelector(`#by-fill-color-text`).value) ? temp : '#000000';
+        config[`strokeAlpha`] = this._element[0].querySelector(`#by-stroke-alpha`).value;
+        config[`fillAlpha`] = this._element[0].querySelector(`#by-fill-alpha`).value;
+        config[`strokeWidth`] = !isNaN(temp = this._element[0].querySelector(`#by-stroke-width`).value) ? ((temp = parseInt(temp)) < 0 ? 0 : temp) : 12;
+        config[`fillType`] = parseInt(this._element[0].querySelector(`#by-fill-type`).value);
+
+        game.settings.set("core", DrawingsLayer.DEFAULT_CONFIG_SETTING, config);
     }
 
     close_window_handler(e) {
@@ -287,6 +252,7 @@ export class Drawing_Tools extends Application {
 
         // Check if the new focus target is still a part of the drawing tools window
         if (!document.querySelector("#by-quick-draw-config").contains(e.relatedTarget)) {
+            this.update_drawing_layer_config();
             this.close();
         }
     }

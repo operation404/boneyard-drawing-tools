@@ -10,7 +10,68 @@ export class Drawing_Tools extends Application {
 
     static init() {
         Drawing_Tools.prepare_hook_handlers();
+        Drawing_Tools.prepare_shortcut_listener();
         console.log(`====== Boneyard ======\n - Drawing tools initialized`);
+    }
+
+    static shortcut = {enabled: false};
+    static mouse_pos = {x: 0, y: 0};
+
+    static get_shortcut_options() {
+        Drawing_Tools.shortcut = {
+            enabled: true,
+            key: 'd',
+            modifiers: {
+                ctrl: true,
+                shift: false,
+                alt: false
+            }
+        };
+    }
+
+    static prepare_shortcut_listener() {
+        Drawing_Tools.get_shortcut_options();
+        if (!Drawing_Tools.shortcut.enabled) return;
+
+        function shortcut_handler(e) {
+            if (e.key === Drawing_Tools.shortcut.key 
+                && !(Drawing_Tools.shortcut.modifiers.ctrl && !e.ctrlKey)
+                && !(Drawing_Tools.shortcut.modifiers.shift && !e.shiftKey)
+                && !(Drawing_Tools.shortcut.modifiers.alt && !e.altKey))
+            {        
+                // Open the drawing tools panel
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                new Drawing_Tools({x: Drawing_Tools.mouse_pos.x, y: Drawing_Tools.mouse_pos.y}).render(true);
+            }
+        }
+
+        function mouse_position_handler(e) {
+            Drawing_Tools.mouse_pos.x = e.clientX;
+            Drawing_Tools.mouse_pos.y = e.clientY;
+        }
+
+        Hooks.on("ready", () => {
+            const observer = new MutationObserver((mutationList) => {
+                const new_button = mutationList[0].addedNodes[0].querySelector("li[data-control=\"drawings\"]").classList.contains("active");
+                const old_button = mutationList[0].removedNodes[0].querySelector("li[data-control=\"drawings\"]").classList.contains("active");
+                
+                if (new_button && !old_button) {
+
+                    // drawing controls selected
+                    document.body.addEventListener("keydown", shortcut_handler);        
+                    document.body.addEventListener("mousemove", mouse_position_handler);
+
+                } else if (!new_button && old_button) {
+
+                    // drawing tools toggled off
+                    document.body.removeEventListener("keydown", shortcut_handler);        
+                    document.body.removeEventListener("mousemove", mouse_position_handler);
+
+                }
+            });
+            observer.observe(document.querySelector("section#ui-left"), {childList: true});
+        });
     }
 
     static prepare_hook_handlers() {
@@ -96,39 +157,54 @@ export class Drawing_Tools extends Application {
         await super._render(force, options);
 
         // ---- Set the proper coordinates for the window ----
+        if (this.options.x !== undefined && this.options.y !== undefined) {
+            // ---- Drawing tools shortcut was pressed
 
-        const controls_container = document.querySelector('#ui-left > #controls');
-        const controls_container_style = window.getComputedStyle(controls_container);
-        const sub_controls = document.querySelector('#controls > ol.sub-controls.app.control-tools.flexcol.active');
-        const control = sub_controls.firstElementChild;
-        const control_style = window.getComputedStyle(control);
+            let x = this.options.x, y = this.options.y;
+            const panel_bounds = this._element[0].getBoundingClientRect();
+            x = (x -= panel_bounds.width / 2) < 0 ? 0 : x;
+            y = (y -= panel_bounds.height / 2) < 0 ? 0 : y;
+            this._element[0].style.left = `${x}px`;
+            this._element[0].style.top = `${y}px`;
 
-        // offsetHeight includes padding+border but not margin
-        const control_height = control.offsetHeight + parseFloat(control_style.marginTop) + parseFloat(control_style.marginBottom);
-        const control_width = control.offsetWidth + parseFloat(control_style.marginLeft) + parseFloat(control_style.marginRight);
-        const max_controls_per_col = Math.floor(sub_controls.offsetHeight / control_height);
+        } else {
+            // ---- Drawing Tools control button was pressed
 
-        // There's always 1 main control column + potentially multiple sub-control columns
-        const columns = 1 + Math.ceil(sub_controls.childElementCount / max_controls_per_col);
+            const controls_container = document.querySelector('#ui-left > #controls');
+            const controls_container_style = window.getComputedStyle(controls_container);
+            const sub_controls = document.querySelector('#controls > ol.sub-controls.app.control-tools.flexcol.active');
+            const control = sub_controls.firstElementChild;
+            const control_style = window.getComputedStyle(control);
 
-        const offset_left = (columns * control_width) + parseFloat(controls_container_style.paddingLeft);
+            // offsetHeight includes padding+border but not margin
+            const control_height = control.offsetHeight + parseFloat(control_style.marginTop) + parseFloat(control_style.marginBottom);
+            const control_width = control.offsetWidth + parseFloat(control_style.marginLeft) + parseFloat(control_style.marginRight);
+            const max_controls_per_col = Math.floor(sub_controls.offsetHeight / control_height);
 
-        // The drawing sub-controls should be the active set, so just query that
-        const drawing_tool = sub_controls.querySelector(`[data-tool='quick-draw-config']`);
-        const drawing_tool_rect = drawing_tool.getBoundingClientRect();
-        const drawing_tool_y_center = drawing_tool_rect.top + (drawing_tool_rect.height / 2); // not sure if .top or .y is better
+            // There's always 1 main control column + potentially multiple sub-control columns
+            const columns = 1 + Math.ceil(sub_controls.childElementCount / max_controls_per_col);
 
-        const offset_top = drawing_tool_y_center - (this._element[0].offsetHeight / 2);
+            const offset_left = (columns * control_width) + parseFloat(controls_container_style.paddingLeft);
 
-        this._element[0].style.left = `${offset_left}px`;
-        this._element[0].style.top = `${offset_top}px`;
+            // The drawing sub-controls should be the active set, so just query that
+            const drawing_tool = sub_controls.querySelector(`[data-tool='quick-draw-config']`);
+            const drawing_tool_rect = drawing_tool.getBoundingClientRect();
+            const drawing_tool_y_center = drawing_tool_rect.top + (drawing_tool_rect.height / 2); // not sure if .top or .y is better
 
-        // ----
+            const offset_top = drawing_tool_y_center - (this._element[0].offsetHeight / 2);
 
+            this._element[0].style.left = `${offset_left}px`;
+            this._element[0].style.top = `${offset_top}px`;
+        }
+       
+        // Focus the dropper button
+        this._element[0].querySelector(`#by-dropper-button`).focus();
+        /*
         // Focus last edited tool color
         const color_text_input = this._element[0].querySelector(`#by-quick-draw-config #by-${Drawing_Tools.current_tool}-color-text`);
         color_text_input.setSelectionRange(color_text_input.value.length, color_text_input.value.length);
         color_text_input.focus();        
+        */
     }
 
     activateListeners(html) {

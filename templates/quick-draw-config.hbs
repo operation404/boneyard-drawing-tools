@@ -25,11 +25,13 @@
                     </svg>
                 </button>
                 <input class="by-text-input" id="by-stroke-color-text" data-tool="stroke" type="text" value="{{stroke_color}}"/>
-                <div class="by-row-container">
-                    <label class="by-text" for="by-stroke-alpha-label" >Opacity: </label>
-                    <span class="by-input-label" id="by-stroke-alpha-label" data-tool="stroke">{{stroke_alpha}}</span>
+                <div>
+                    <div class="by-row-container">
+                        <label class="by-text" for="by-stroke-alpha-label" >Opacity: </label>
+                        <span class="by-input-label" id="by-stroke-alpha-label" data-tool="stroke">{{stroke_alpha}}</span>
+                    </div>
+                    <input class="by-range-input" id="by-stroke-alpha" data-tool="stroke" type="range" min="0" max="1" step="0.1" value="{{stroke_alpha}}" />
                 </div>
-                <input class="by-range-input" id="by-stroke-alpha" data-tool="stroke" type="range" min="0" max="1" step="0.1" value="{{stroke_alpha}}" />
                 <label class="by-text" for="by-stroke-width">Line width: </label>
                 <div class="by-row-container">
                     <button class="by-input-companion-button" id="by-stroke-width-minus" type="button" data-tool="stroke" title="Click to subtract 1. Shift-click to subtract 5.">-</button>
@@ -47,11 +49,13 @@
                     </svg>
                 </button>
                 <input class="by-text-input" id="by-fill-color-text" data-tool="fill" type="text" value="{{fill_color}}"/>
-                <div class="by-row-container">
-                    <label class="by-text" for="by-fill-alpha-label">Opacity: </label>
-                    <span class="by-input-label" id="by-fill-alpha-label" data-tool="fill">{{fill_alpha}}</span>
-                </div>
-                <input class="by-range-input" id="by-fill-alpha" data-tool="fill" type="range" min="0" max="1" step="0.1" value="{{fill_alpha}}"/>
+                <div>
+                    <div class="by-row-container">
+                        <label class="by-text" for="by-fill-alpha-label">Opacity: </label>
+                        <span class="by-input-label" id="by-fill-alpha-label" data-tool="fill">{{fill_alpha}}</span>
+                    </div>
+                    <input class="by-range-input" id="by-fill-alpha" data-tool="fill" type="range" min="0" max="1" step="0.1" value="{{fill_alpha}}"/>
+                </div>                
                 <label class="by-text" for="by-fill-type" data-tool="fill">Fill type: </label>
                 <select class="by-select" id="by-fill-type" data-tool="fill">
                     <option value="0" {{none_selected}}>None</option>

@@ -41,6 +41,11 @@ div#by-control-menu > div > div {
 	margin: 3px;
 }
 
+div#by-stroke-menu > *,
+div#by-fill-menu > * {
+	margin-bottom: 4px;
+}
+
 label.by-text {
 	white-space: nowrap;
 	flex-grow: 0;

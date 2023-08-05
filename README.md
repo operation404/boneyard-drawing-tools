@@ -8,6 +8,18 @@
 - [TODO](#todo)
 
 ## Quick drawing settings adjuster
+A new tool is added to the Drawing Layer control sidebar. This tool will open the Drawing Tools configuration panel. This panel allows you to quickly adjust the color, opacity, stroke width, and fill type of your drawing settings. The panel closes automatically upon losing focus and the new settings are saved upon closing.
+
+The panel is divided into two sections. The left side of the 
+
+<img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/drawing_tools_panel_example.png?raw=true" width=25%>
+
+
+
+
+-----------------------------------------------------------------------------------------
+
+## Quick drawing settings adjuster
 Two new tools are added to the Drawing sidebar. These tools open a popup menu that allows fast adjustment of stroke or fill color, opacity, line width, and fill type. The changes to drawing settings are continuously updated as you make adjustments on the panel, and it can be closed by clicking anywhere off of it.
 
 The first tool controls line settings. The menu for lines contains options for changing stroke color, opacity, and line width.

@@ -32,7 +32,8 @@ div#by-color-picker-container > div {
   margin-bottom: 6px;
 }
 
-div#by-canvas-container, div#by-hue-siderbar-container {
+div#by-canvas-container,
+div#by-hue-siderbar-container {
   display: flex;
   border-style: groove;
   border-color: black;

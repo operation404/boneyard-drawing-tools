@@ -1,87 +1,87 @@
-
 label.by-text {
-	white-space: nowrap; 
+	white-space: nowrap;
 	flex-grow: 0;
 }
 
 div.by-row-container {
-	display: flex; 
+	display: flex;
 	flex-direction: row;
 }
 
 div.by-col-container {
-	display: flex; 
+	display: flex;
 	flex-direction: column;
 }
 
 div.by-circle {
-    border-radius: 50%;
+	border-radius: 50%;
 }
 
 div#by-dropper-preview {
-    border: 2px solid black;
-    position: absolute;
-    z-index: 100;
-    display: grid;
-    overflow: hidden;
-    grid-column-gap: 2%;
-    grid-row-gap: 2%;
-    background-color: rgb(53, 53, 53);
+	border: 2px solid black;
+	position: absolute;
+	z-index: 100;
+	display: grid;
+	overflow: hidden;
+	grid-column-gap: 2%;
+	grid-row-gap: 2%;
+	background-color: rgb(53, 53, 53);
 }
 
 div#by-color-picker-container > div {
-    margin-bottom: 6px;
+	margin-bottom: 6px;
 }
 
-div#by-canvas-container, div#by-hue-siderbar-container {
-    display: flex;
-    border-style: groove;
-    border-color: black;
-    border-width: 1px;
+div#by-canvas-container,
+div#by-hue-siderbar-container {
+	display: flex;
+	border-style: groove;
+	border-color: black;
+	border-width: 1px;
 }
 
 div#by-hue-siderbar-container {
-    margin-left: 6px;
+	margin-left: 6px;
 }
 
 svg#by-color-picker-marker-container {
-    position: absolute;
-    pointer-events: none;
+	position: absolute;
+	pointer-events: none;
 }
 
 div#by-hue-siderbar-container {
-    position: relative;
+	position: relative;
 }
 
 svg#by-hue-siderbar-marker-container {
-    position: absolute;
-    //pointer-events: none;
-    left: -5px;
-    top: -2px;
+	position: absolute;
+	//pointer-events: none;
+	left: -5px;
+	top: -2px;
 }
 
 input.by-RGB-input {
 	width: 25px;
 	background: white;
-    margin-left: 2px;
+	margin-left: 2px;
 	height: fit-content;
 }
 
-div#by-rgb-input-container > div, 
-div#by-dropper-container, 
+div#by-rgb-input-container > div,
+div#by-dropper-container,
 div#by-random-container {
-    margin: 0 2px 0 2px;
+	margin: 0 2px 0 2px;
 }
 
 div#by-rgb-input-container > div > label {
-    padding-top: 2px;
+	padding-top: 2px;
 }
 
 button.by-dropper-button {
-    line-height: normal;
-    padding: 0 0 0 0;
-    height: 20px;
-    width: 20px;
+	line-height: normal;
+	padding: 0 0 0 0;
+	height: 20px;
+	width: 20px;
 }
 
 svg.by-fa-dropper-icon {
@@ -90,9 +90,9 @@ svg.by-fa-dropper-icon {
 	height: 0.5em;
 	font-size: 32px;
 	fill: white;
-    stroke: black;
-    stroke-width: 150;
-    paint-order: stroke;
-    stroke-linejoin: round;
+	stroke: black;
+	stroke-width: 150;
+	paint-order: stroke;
+	stroke-linejoin: round;
 	pointer-events: none;
 }

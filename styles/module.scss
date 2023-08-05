@@ -1,12 +1,12 @@
 /* Using a # allows styling to be applied by id rather than class */
 
 div.by-row-container {
-	display: flex; 
+	display: flex;
 	flex-direction: row;
 }
 
 div.by-col-container {
-	display: flex; 
+	display: flex;
 	flex-direction: column;
 }
 
@@ -42,7 +42,7 @@ div#by-control-menu > div > div {
 }
 
 label.by-text {
-	white-space: nowrap; 
+	white-space: nowrap;
 	flex-grow: 0;
 }
 
@@ -65,10 +65,10 @@ svg.by-fa-button-icon {
 	height: 1em;
 	font-size: 32px;
 	fill: white;
-    stroke: black;
-    stroke-width: 150;
-    paint-order: stroke;
-    stroke-linejoin: round;
+	stroke: black;
+	stroke-width: 150;
+	paint-order: stroke;
+	stroke-linejoin: round;
 	scale: 1.15;
 	pointer-events: none;
 }
@@ -102,8 +102,8 @@ input.by-text-input {
 }
 
 input.by-text-input#by-stroke-width {
-	text-align: center; 
-	height: auto; 
+	text-align: center;
+	height: auto;
 	flex-grow: 1;
 	width: 40px;
 }
@@ -114,13 +114,13 @@ input.by-range-input {
 }
 
 select.by-select {
-	text-align:left; 
+	text-align: left;
 	width: 80px;
 	display: list-item;
 	background: white;
 }
 
 select.by-select#by-fill-type {
-	height: auto; 
+	height: auto;
 	flex-grow: 0;
 }

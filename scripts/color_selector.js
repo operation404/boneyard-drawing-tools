@@ -9,11 +9,11 @@ export class Color_Selector {
     static _template_path = `modules/boneyard-drawing-tools/templates/color-selector.hbs`;
 
     static default_options = {
-        canvas_width: 150,
-        canvas_height: 150,
+        canvas_size: 150,
         color: "#FF0000",
         dropper_preview_size: 50,
-        dropper_read_size: 5,
+        dropper_read_size: 5, // radius of 3
+        preset_color_swatches: [], // must be in #XXXXXX format and 20 of them
     };
 
     static partial_hex_test = /^[0-9A-F]{1,2}$/i;
@@ -73,17 +73,17 @@ export class Color_Selector {
 
     }
 
-    constructor(options = {}) {
+    constructor(options = {}, mouse_pos) {
         this.options = {...Color_Selector.default_options, ...options};
+        this.mouse_pos = mouse_pos;
         this.down = false;
     }
 
     render_and_attach_html(parent_element, data = {}) {
         data = {
-            canvas_width: this.options.canvas_width,
-            canvas_height: this.options.canvas_height,
+            canvas_size: this.options.canvas_size,
             ...data,
-            hue_height: this.options.canvas_height + 4,
+            hue_height: this.options.canvas_size + 4,
             red: this.options.color.slice(1,3),
             green: this.options.color.slice(3,5),
             blue: this.options.color.slice(5,7),
@@ -201,7 +201,6 @@ export class Color_Selector {
         }).trim();
         this.dropper = element_template.content.firstChild;
         document.body.appendChild(this.dropper);
-        this.move_dropper(e.clientX, e.clientY);
 
         // Add click listener to document, check if target is canvas
         const document_pointerdown_handler = (e) => {  
@@ -226,6 +225,8 @@ export class Color_Selector {
 
         // Add mousemove listener too, preview color as mouse moves
         const document_mousemove_handler = (e) => {
+            this.mouse_pos.x = e.clientX;
+            this.mouse_pos.y = e.clientY;
             this.move_dropper(e.clientX, e.clientY);
             if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
                 window.requestAnimationFrame(() => {
@@ -258,6 +259,21 @@ export class Color_Selector {
             document.removeEventListener("keydown", document_keydown_handler, {capture: true});
             this.dropper.remove();
             this.dropper = null;
+        }
+
+        const hovered_ele = document.elementFromPoint(this.mouse_pos.x, this.mouse_pos.y);
+        if (hovered_ele.id === "board" && hovered_ele.nodeName === "CANVAS") {
+            document_mousemove_handler({
+                clientX: this.mouse_pos.x, 
+                clientY: this.mouse_pos.y,
+                target: {
+                    id: "board",
+                    nodeName: "CANVAS"
+                },
+                stopImmediatePropagation: () => {},
+            });
+        } else {
+            this.move_dropper(this.mouse_pos.x, this.mouse_pos.y);
         }
 
         e.stopImmediatePropagation();
@@ -319,8 +335,8 @@ export class Color_Selector {
     }
 
     move_canvas_marker(x, y) {
-        x = Math.min(this.options.canvas_width, Math.max(0, x));
-        y = Math.min(this.options.canvas_height, Math.max(0, y));
+        x = Math.min(this.options.canvas_size, Math.max(0, x));
+        y = Math.min(this.options.canvas_size, Math.max(0, y));
         this.canvas_marker.setAttribute('cx', x);
         this.canvas_marker.setAttribute('cy', y);
         this.canvas_marker_outline.setAttribute('cx', x);
@@ -328,18 +344,18 @@ export class Color_Selector {
     }
 
     move_hue_marker(y) {
-        y = Math.min(this.options.canvas_height, Math.max(0, y));
+        y = Math.min(this.options.canvas_size, Math.max(0, y));
         this.hue_marker.setAttribute('y', y);        
     }
 
     get_hue() {
-        return this.hue_marker.getAttribute('y') / this.options.canvas_height;
+        return this.hue_marker.getAttribute('y') / this.options.canvas_size;
     }
 
     get_canvas_color() {
         const hue = this.get_hue();
-        const saturation = this.canvas_marker.getAttribute('cx') / this.options.canvas_width;
-        const value = 1 - this.canvas_marker.getAttribute('cy') / this.options.canvas_height;        
+        const saturation = this.canvas_marker.getAttribute('cx') / this.options.canvas_size;
+        const value = 1 - this.canvas_marker.getAttribute('cy') / this.options.canvas_size;        
         return Color_Selector.color_vec_to_str(Color_Selector.hsv_vec_to_rgb([hue, saturation, value]));
     }
     
@@ -358,8 +374,8 @@ export class Color_Selector {
 
     update_canvas(color) {
         const hsv = Color_Selector.rbg_vec_to_hsv(Color_Selector.color_str_to_vec(color));
-        this.move_hue_marker(Math.floor(this.options.canvas_height * hsv[0]));
-        this.move_canvas_marker(Math.round(this.options.canvas_width * hsv[1]), Math.round(this.options.canvas_height * (1 - hsv[2])));
+        this.move_hue_marker(Math.floor(this.options.canvas_size * hsv[0]));
+        this.move_canvas_marker(Math.round(this.options.canvas_size * hsv[1]), Math.round(this.options.canvas_size * (1 - hsv[2])));
         this.change_canvas_gradients(Color_Selector.color_vec_to_str(Color_Selector.hsv_vec_to_rgb([hsv[0], 1, 1])));
     }
 

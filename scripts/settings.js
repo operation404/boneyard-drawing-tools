@@ -1,21 +1,110 @@
-import {
-    MODULE,
-    SETTING_SIDEBAR_BUTTONS
-} from "./constants.js";
+import { 
+    MODULE, 
+    SETTING_SHORTCUT_ENABLED, 
+    SETTING_SHORTCUT_KEY, 
+    SETTING_SHORTCUT_MODIFIERS, 
+    SETTINGS_COLOR_SELECTOR_SIZE, 
+    SETTING_DROPPER_PREVIEW_SIZE, 
+    SETTING_DROPPER_READ_RADIUS, 
+    SETTINGS_PRESET_COLOR_SWATCHES
+} from"./constants.js";
+import { Drawing_Tools } from "./drawing_tools.js";
 
 export function prepare_settings() {
 
-    // TODO This currently serves no purpose...
-
-    game.settings.register(MODULE, SETTING_SIDEBAR_BUTTONS, {
-        name: "SETTINGS.Targeting_Mode_Name",
-        hint: "SETTINGS.Targeting_Mode_Hint",
-        scope: 'world', // "world" = sync to db, "client" = local storage
-        config: true, // false if you dont want it to show in module config
-        type: Boolean, // Number, Boolean, String, Object
+    game.settings.register(MODULE, SETTING_SHORTCUT_ENABLED, {
+        name: "SETTINGS.NAME.shortcut_enabled",
+        hint: "SETTINGS.HINT.shortcut_enabled",
+        scope: 'client',
+        config: true,
+        type: Boolean,
         default: true,
         requiresReload: true,
-        //onChange: value => {}, // value is the new value of the setting
+    });
+
+    game.settings.register(MODULE, SETTING_SHORTCUT_KEY, {
+        name: "SETTINGS.NAME.shortcut_key",
+        hint: "SETTINGS.HINT.shortcut_key",
+        scope: 'client',
+        config: true,
+        type: String,
+        default: 'd',
+        requiresReload: false,
+        onChange: (value) => {
+            Drawing_Tools.shortcut.key = value.toLowerCase();
+        },
+    });
+
+    game.settings.register(MODULE, SETTING_SHORTCUT_MODIFIERS, {
+        name: "SETTINGS.NAME.shortcut_modifiers",
+        hint: "SETTINGS.HINT.shortcut_modifiers",
+        scope: 'client',
+        config: true,
+        type: String,
+        choices: {
+            "ctrl":         "Ctrl",
+            "shift":        "Shift",
+            "alt":          "Alt",
+            "ctrl,shift":   "Ctrl+Shift",
+            "ctrl,alt":     "Ctrl+Alt",
+            "shift,alt":    "Shift+Alt"
+        },
+        default: "ctrl",
+        requiresReload: false,
+        onChange: (value) => {
+            value = value.split(",");
+            for (const key in Drawing_Tools.shortcut.modifiers) {
+                if (value.includes(key)) {
+                    Drawing_Tools.shortcut.modifiers[key] = true;
+                } else {
+                    Drawing_Tools.shortcut.modifiers[key] = false;
+                }
+            }
+        },
+    });
+
+     // min size 100
+    game.settings.register(MODULE, SETTINGS_COLOR_SELECTOR_SIZE, {
+        name: "SETTINGS.NAME.color_selector_size",
+        hint: "SETTINGS.HINT.color_selector_size",
+        scope: 'client',
+        config: true,
+        type: Number,
+        default: 150,
+        requiresReload: false,
+    });
+
+     // min size 20
+    game.settings.register(MODULE, SETTING_DROPPER_PREVIEW_SIZE, {
+        name: "SETTINGS.NAME.dropper_preview_size",
+        hint: "SETTINGS.HINT.dropper_preview_size",
+        scope: 'client',
+        config: true,
+        type: String,
+        default: 50,
+        requiresReload: false,
+    });
+
+     // min read 1
+    game.settings.register(MODULE, SETTING_DROPPER_READ_RADIUS, {
+        name: "SETTINGS.NAME.dropper_read_radius",
+        hint: "SETTINGS.HINT.dropper_read_radius",
+        scope: 'client',
+        config: true,
+        type: Number,
+        default: 3,
+        requiresReload: false,
+    });
+
+    // must be in #XXXXXX format, comma separated, and 20 of them
+    game.settings.register(MODULE, SETTINGS_PRESET_COLOR_SWATCHES, {
+        name: "SETTINGS.NAME.preset_color_swatches",
+        hint: "SETTINGS.HINT.preset_color_swatches",
+        scope: 'client',
+        config: true,
+        type: String,
+        default: "",
+        requiresReload: false,
     });
     
 }

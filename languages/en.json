@@ -3,5 +3,20 @@
 	"CONTROLS.DrawingFillColor": "Set Drawing Fill Color",
 	"CONTROLS.QuickDrawConfig": "Open Quick Draw Config",
 	"CONTROLS.stroke_color": "Stroke Color",
-	"CONTROLS.fill_color": "Fill Color"
+	"CONTROLS.fill_color": "Fill Color",
+
+	"SETTINGS.NAME.shortcut_enabled": "Shortcut Enabled",
+	"SETTINGS.HINT.shortcut_enabled": "Whether or not the Drawing Tools panel can be opened via shortcut. Only works when drawing layer is active.",
+	"SETTINGS.NAME.shortcut_key": "Shortcut Key",
+	"SETTINGS.HINT.shortcut_key": "What key will open the Drawing Tools panel. Can be any valid key recognized by JS Events and will be converted to lower case. This can include non-alphanumeric keys, though it is recommended to not use the modifier keys.",
+	"SETTINGS.NAME.shortcut_modifiers": "Shortcut Modifiers",
+	"SETTINGS.HINT.shortcut_modifiers": "What modifier keys must be held to activate the Drawing Tools shortcut.",
+	"SETTINGS.NAME.color_selector_size": "Color Selector Size",
+	"SETTINGS.HINT.color_selector_size": "The size of the color selector canvas. Minimum 100.",
+	"SETTINGS.NAME.dropper_preview_size": "Dropper Preview Size",
+	"SETTINGS.HINT.dropper_preview_size": "The size of the dropper preview window. Minimum 20.",
+	"SETTINGS.NAME.dropper_read_radius": "Dropper Read Radius",
+	"SETTINGS.HINT.dropper_read_radius": "The radius of pixels displayed by the dropper preview pixel grid. A radius of 1 will only show the exact pixel hovered. A radius of 3 will show two extra pixels on each side surrounding the center pixel. Minimum 1",	
+	"SETTINGS.NAME.preset_color_swatches": "Preset Color Swatches",
+	"SETTINGS.HINT.preset_color_swatches": "CURRENTLY NOT IMPLEMENTED. The color codes of the preset swatches under the color selector. These must be in '#XXXXXX' format, are comma separated, and there must be exactly 20."
 }

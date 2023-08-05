@@ -1,6 +1,13 @@
-import {
-    MODULE, SETTING_SIDEBAR_BUTTONS
-} from "./constants.js";
+import { 
+    MODULE, 
+    SETTING_SHORTCUT_ENABLED, 
+    SETTING_SHORTCUT_KEY, 
+    SETTING_SHORTCUT_MODIFIERS, 
+    SETTINGS_COLOR_SELECTOR_SIZE, 
+    SETTING_DROPPER_PREVIEW_SIZE, 
+    SETTING_DROPPER_READ_RADIUS, 
+    SETTINGS_PRESET_COLOR_SWATCHES
+} from"./constants.js";
 import { Color_Selector } from "./color_selector.js";
 
 export class Drawing_Tools extends Application {
@@ -14,27 +21,36 @@ export class Drawing_Tools extends Application {
         console.log(`====== Boneyard ======\n - Drawing tools initialized`);
     }
 
-    static shortcut = {enabled: false};
     static mouse_pos = {x: 0, y: 0};
+    static shortcut = {
+        enabled: true,
+        key: 'd',
+        modifiers: {
+            ctrl: true,
+            shift: false,
+            alt: false
+        }
+    };
 
-    static get_shortcut_options() {
-        Drawing_Tools.shortcut = {
-            enabled: true,
-            key: 'd',
-            modifiers: {
-                ctrl: true,
-                shift: false,
-                alt: false
+    static set_shortcut_options() {
+        Drawing_Tools.shortcut.enabled = game.settings.get(MODULE, SETTING_SHORTCUT_ENABLED);
+        Drawing_Tools.shortcut.key = game.settings.get(MODULE, SETTING_SHORTCUT_KEY).toLowerCase();
+        const modifiers = game.settings.get(MODULE, SETTING_SHORTCUT_MODIFIERS).split(",");
+        for (const key in Drawing_Tools.shortcut.modifiers) {
+            if (modifiers.includes(key)) {
+                Drawing_Tools.shortcut.modifiers[key] = true;
+            } else {
+                Drawing_Tools.shortcut.modifiers[key] = false;
             }
-        };
+        }        
     }
 
     static prepare_shortcut_listener() {
-        Drawing_Tools.get_shortcut_options();
+        Drawing_Tools.set_shortcut_options();
         if (!Drawing_Tools.shortcut.enabled) return;
 
         function shortcut_handler(e) {
-            if (e.key === Drawing_Tools.shortcut.key 
+            if (e.key.toLowerCase() === Drawing_Tools.shortcut.key 
                 && !(Drawing_Tools.shortcut.modifiers.ctrl && !e.ctrlKey)
                 && !(Drawing_Tools.shortcut.modifiers.shift && !e.shiftKey)
                 && !(Drawing_Tools.shortcut.modifiers.alt && !e.altKey))
@@ -75,9 +91,7 @@ export class Drawing_Tools extends Application {
     }
 
     static prepare_hook_handlers() {
-        if (game.settings.get(MODULE, SETTING_SIDEBAR_BUTTONS)) {
-            Hooks.on("getSceneControlButtons", (controls) => Drawing_Tools.add_control_buttons(controls));
-        }
+        Hooks.on("getSceneControlButtons", (controls) => Drawing_Tools.add_control_buttons(controls));
     }
 
     static add_control_buttons(controls) {
@@ -113,15 +127,43 @@ export class Drawing_Tools extends Application {
         return `linear-gradient(180deg, ${color_stops}, transparent 30%)`;
     }
 
+    static get_settings() {
+        let cs_size, dr_size, dr_radi, swatches;
+        cs_size = (cs_size = Math.floor(game.settings.get(MODULE, SETTINGS_COLOR_SELECTOR_SIZE))) < 100 ? 100 : cs_size;
+        dr_size = (dr_size = Math.floor(game.settings.get(MODULE, SETTING_DROPPER_PREVIEW_SIZE))) < 20 ? 20 : dr_size;
+        dr_radi = (dr_radi = Math.floor(game.settings.get(MODULE, SETTING_DROPPER_READ_RADIUS))) < 1 ? 1 : dr_radi;
+        const settings = {
+            canvas_size: cs_size,
+            dropper_preview_size: dr_size,
+            dropper_read_size: dr_radi * 2 - 1,
+        };
+        // must be in #XXXXXX format, comma separated, and 20 of them
+        swatches = game.settings.get(MODULE, SETTINGS_PRESET_COLOR_SWATCHES).split(",");
+        if (swatches.length !== 20) {
+            for (let i = 0; i < swatches.length; i++) {
+                swatches[i] = swatches[i].trim();
+                if (!Drawing_Tools.hex_test.test(swatches[i])) {
+                    swatches = null;
+                    break;
+                }
+            }
+        } else {
+            swatches = null;
+        }
+        if (swatches !== null) settings.preset_color_swatches = swatches;
+        return settings;
+    }
+
     /**
      * The Drawing_Tools Application window.
      * @param {ApplicationOptions} [options]  Default Application configuration options.
      */
     constructor(options = {}) {
+        options = {...Drawing_Tools.get_settings(), ...options};
         super(options);
         const drawing_defaults = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
-        this.color_selector = new Color_Selector({color: drawing_defaults[`${Drawing_Tools.current_tool}Color`]});
-    }
+        this.color_selector = new Color_Selector({color: drawing_defaults[`${Drawing_Tools.current_tool}Color`], ...options}, Drawing_Tools.mouse_pos);
+    } 
 
     getData() {
         const drawing_defaults = game.settings.get("core", DrawingsLayer.DEFAULT_CONFIG_SETTING);
@@ -163,7 +205,8 @@ export class Drawing_Tools extends Application {
             let x = this.options.x, y = this.options.y;
             const panel_bounds = this._element[0].getBoundingClientRect();
             x = (x -= panel_bounds.width / 2) < 0 ? 0 : x;
-            y = (y -= panel_bounds.height / 2) < 0 ? 0 : y;
+            x = x + panel_bounds.width / 2 > window.innerWidth ? window.innerWidth - panel_bounds.width : x;
+            y = (y += 10) + panel_bounds.height > window.innerHeight ? window.innerHeight - panel_bounds.height : y;
             this._element[0].style.left = `${x}px`;
             this._element[0].style.top = `${y}px`;
 

@@ -408,7 +408,7 @@ export class Drawing_Tools extends Application {
 	}
 
 	save_recent_colors() {
-		let temp;
+		let temp, pos;
 		const stroke = Drawing_Tools.hex_test.test(
 			(temp = this._element[0].querySelector(`#by-stroke-color-text`).value)
 		)
@@ -417,12 +417,20 @@ export class Drawing_Tools extends Application {
 		const fill = Drawing_Tools.hex_test.test((temp = this._element[0].querySelector(`#by-fill-color-text`).value))
 			? temp
 			: null;
-		if (fill !== null && !this.options.recent_color_swatches.includes(fill)) {
+
+		if (fill !== null) {
+			if ((pos = this.options.recent_color_swatches.findIndex(c => c === fill)) >= 0) {
+				this.options.recent_color_swatches.splice(pos, 1);
+			}
 			this.options.recent_color_swatches.unshift(fill);
 		}
-		if (stroke !== null && !this.options.recent_color_swatches.includes(stroke)) {
+		if (stroke !== null) {
+			if ((pos = this.options.recent_color_swatches.findIndex(c => c === stroke)) >= 0) {
+				this.options.recent_color_swatches.splice(pos, 1);
+			}
 			this.options.recent_color_swatches.unshift(stroke);
 		}
+		
 		game.settings.set(
 			MODULE,
 			SETTINGS_RECENT_COLORS,

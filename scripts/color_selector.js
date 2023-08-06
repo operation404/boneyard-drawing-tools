@@ -11,7 +11,8 @@ export class Color_Selector {
 		color: '#FF0000',
 		dropper_preview_size: 50,
 		dropper_read_size: 5, // radius of 3
-		preset_color_swatches: [], // must be in #XXXXXX format and 20 of them
+		preset_color_swatches: [],
+		recent_color_swatches: [],
 	};
 
 	static partial_hex_test = /^[0-9A-F]{1,2}$/i;
@@ -106,6 +107,23 @@ export class Color_Selector {
 		this.dropper_button = this._element.querySelector('#by-dropper-button');
 		this.random_button = this._element.querySelector('#by-random-button');
 		this.initialize_dropper();
+		this.preset_swatches = this._element.querySelector('#by-preset-swatches-container');
+		this.recent_swatches = this._element.querySelector('#by-recent-swatches-container');
+		this.initialize_swatches();
+	}
+
+	initialize_swatches() {
+		const swatches_template = `
+			{{#each colors}}
+				<button class="by-swatch" type="button" style="background: {{this}};"></button>
+			{{/each}}
+        `;
+		this.preset_swatches.innerHTML = Handlebars.compile(swatches_template)({
+			colors: this.options.preset_color_swatches,
+		}).trim();
+		this.recent_swatches.innerHTML = Handlebars.compile(swatches_template)({
+			colors: this.options.recent_color_swatches,
+		}).trim();
 	}
 
 	initialize_hue_sidebar() {
@@ -181,7 +199,22 @@ export class Color_Selector {
 		this.dropper_button.addEventListener('click', (e) => this.dropper_button_handler(e));
 		this.random_button.addEventListener('click', (e) => this.random_button_handler(e));
 
+		for (const swatch of this.preset_swatches.children) {
+			swatch.addEventListener('click', (e) => this.swatch_button_handler(e));
+		}
+		for (const swatch of this.recent_swatches.children) {
+			swatch.addEventListener('click', (e) => this.swatch_button_handler(e));
+		}
+
 		this.color_update_listener = color_update_listener;
+	}
+
+	swatch_button_handler(e) {
+		const fragments = e.target.style.background.split('(')[1].split(')')[0].split(',');
+		const red = parseInt(fragments[0].trim()).toString(16).padStart(2, '0');
+		const green = parseInt(fragments[1].trim()).toString(16).padStart(2, '0');
+		const blue = parseInt(fragments[2].trim()).toString(16).padStart(2, '0');
+		this.update_html_colors(`#${red}${green}${blue}`, 'swatch');
 	}
 
 	initialize_dropper() {
@@ -222,7 +255,7 @@ export class Color_Selector {
 
 		// Add click listener to document, check if target is canvas
 		const document_pointerdown_handler = (e) => {
-			if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
+			if (e.target.id === 'board' && e.target.nodeName === 'CANVAS' && e.button === 0) {
 				window.requestAnimationFrame(() => {
 					this.gl.readPixels(
 						e.clientX * window.devicePixelRatio,
@@ -400,7 +433,7 @@ export class Color_Selector {
 	}
 
 	update_html_colors(color, caller) {
-		// caller can be "canvas", "rgb", "external", "dropper", "random"
+		// caller can be "canvas", "rgb", "external", "dropper", "random", "swatch"
 		if (caller !== 'canvas') this.update_canvas(color);
 		if (caller !== 'rgb') this.update_rgb_fields(color);
 		if (caller !== 'external') this.color_update_listener?.(color);

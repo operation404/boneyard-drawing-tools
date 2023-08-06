@@ -7,6 +7,8 @@ import {
 	SETTING_DROPPER_PREVIEW_SIZE,
 	SETTING_DROPPER_READ_RADIUS,
 	SETTINGS_PRESET_COLOR_SWATCHES,
+	SETTINGS_RECENT_COLOR_HISTORY,
+	SETTINGS_RECENT_COLORS,
 } from './constants.js';
 import { Color_Selector } from './color_selector.js';
 
@@ -128,7 +130,8 @@ export class Drawing_Tools extends Application {
 	}
 
 	static get_settings() {
-		let cs_size, dr_size, dr_radi, swatches;
+		let cs_size, dr_size, dr_radi, swatches, recent_count, recent;
+
 		cs_size = (cs_size = Math.floor(game.settings.get(MODULE, SETTINGS_COLOR_SELECTOR_SIZE))) < 100 ? 100 : cs_size;
 		dr_size = (dr_size = Math.floor(game.settings.get(MODULE, SETTING_DROPPER_PREVIEW_SIZE))) < 20 ? 20 : dr_size;
 		dr_radi = (dr_radi = Math.floor(game.settings.get(MODULE, SETTING_DROPPER_READ_RADIUS))) < 1 ? 1 : dr_radi;
@@ -137,20 +140,30 @@ export class Drawing_Tools extends Application {
 			dropper_preview_size: dr_size,
 			dropper_read_size: dr_radi * 2 - 1,
 		};
-		// must be in #XXXXXX format, comma separated, and 20 of them
+
+		// must be in #XXXXXX format, comma separated, however many the user wants
 		swatches = game.settings.get(MODULE, SETTINGS_PRESET_COLOR_SWATCHES).split(',');
-		if (swatches.length !== 20) {
-			for (let i = 0; i < swatches.length; i++) {
-				swatches[i] = swatches[i].trim();
-				if (!Drawing_Tools.hex_test.test(swatches[i])) {
-					swatches = null;
-					break;
-				}
+		for (let i = 0; i < swatches.length; i++) {
+			swatches[i] = swatches[i].trim();
+			if (!Drawing_Tools.hex_test.test(swatches[i])) {
+				swatches = null;
+				break;
 			}
-		} else {
-			swatches = null;
 		}
 		if (swatches !== null) settings.preset_color_swatches = swatches;
+
+		recent_count = game.settings.get(MODULE, SETTINGS_RECENT_COLOR_HISTORY);
+		recent = game.settings.get(MODULE, SETTINGS_RECENT_COLORS);
+		if (recent.length < recent_count) {
+			while (recent.length < recent_count) {
+				recent.push('#000000');
+			}
+		} else if (recent.length > recent_count) {
+			recent = recent.slice(0, recent_count);
+		}
+		settings.recent_color_history = recent_count;
+		settings.recent_color_swatches = recent;
+
 		return settings;
 	}
 
@@ -394,6 +407,29 @@ export class Drawing_Tools extends Application {
 		game.settings.set('core', DrawingsLayer.DEFAULT_CONFIG_SETTING, config);
 	}
 
+	save_recent_colors() {
+		let temp;
+		const stroke = Drawing_Tools.hex_test.test(
+			(temp = this._element[0].querySelector(`#by-stroke-color-text`).value)
+		)
+			? temp
+			: null;
+		const fill = Drawing_Tools.hex_test.test((temp = this._element[0].querySelector(`#by-fill-color-text`).value))
+			? temp
+			: null;
+		if (fill !== null && !this.options.recent_color_swatches.includes(fill)) {
+			this.options.recent_color_swatches.unshift(fill);
+		}
+		if (stroke !== null && !this.options.recent_color_swatches.includes(stroke)) {
+			this.options.recent_color_swatches.unshift(stroke);
+		}
+		game.settings.set(
+			MODULE,
+			SETTINGS_RECENT_COLORS,
+			this.options.recent_color_swatches.slice(0, this.options.recent_color_history)
+		);
+	}
+
 	close_window_handler(e) {
 		// outermost div has tabindex="0" which allows the whole panel to be focused when clicked
 		// so we only close the window if the user has clicked off the panel
@@ -401,6 +437,7 @@ export class Drawing_Tools extends Application {
 		// Check if the new focus target is still a part of the drawing tools window
 		if (!document.querySelector('#by-quick-draw-config').contains(e.relatedTarget)) {
 			this.update_drawing_layer_config();
+			this.save_recent_colors();
 			this.close();
 		}
 	}

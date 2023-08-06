@@ -18,5 +18,7 @@
 	"SETTINGS.NAME.dropper_read_radius": "Dropper Read Radius",
 	"SETTINGS.HINT.dropper_read_radius": "The radius of pixels displayed by the dropper preview pixel grid. A radius of 1 will only show the exact pixel hovered. A radius of 3 will show two extra pixels on each side surrounding the center pixel. Minimum 1",	
 	"SETTINGS.NAME.preset_color_swatches": "Preset Color Swatches",
-	"SETTINGS.HINT.preset_color_swatches": "CURRENTLY NOT IMPLEMENTED. The color codes of the preset swatches under the color selector. These must be in '#XXXXXX' format, are comma separated, and there must be exactly 20."
+	"SETTINGS.HINT.preset_color_swatches": "The color codes of the preset swatches under the color selector. These must be in '#XXXXXX' format and comma separated.",
+	"SETTINGS.NAME.recent_color_history": "Recent Color History",
+	"SETTINGS.HINT.recent_color_history": "How many recently used colors to track for showing as color swatches."
 }

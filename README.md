@@ -42,6 +42,8 @@ The dropper button allows you to select a color from the game canvas directly. W
 
 The random button will generate a new rolor by randomly selecting 3 values between 0 and 255 for the red, green, and blue color components.
 
+The color swatches provide a quickly accessible list of preset colors. The first set of color swatches are manually configured and are always the same. The second set of swatches is the color history, which track your recently used colors in case you wish to reuse one.
+
 <img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/dropper_preview_example.png?raw=true" width=60%>
 
 When the drawing panel is first opened the dropper button is focused automatically, allowing you to instantly enter dropper mode by pressing the space or enter key.
@@ -54,6 +56,20 @@ While the Drawing Layer is currently active, the Drawing Tools panel can be open
 
 <img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/shortcut_example.png?raw=true" width=50%>
 
+## Settings
+
+The shortcut can be disabled if you wish to only access the Drawing Tools panel from the Drawing Layer control sidebar. You are also able to change the shortcut.
+
+The color selector and dropper preview size adjust how large or small the respective elements are and are measured in pixels. The color selector has a minimum size of 100 and the dropper preview a minimum size of 20.
+
+The dropper read radius controls how many pixels around the cursor are show in the dropper preview. A larger number shows more pixels in the preview window.
+
+The preset color swatches is a string of comma separated hex color codes. These colors must be in the format '#XXXXXX' and you can add as many as desired. There are up to 10 color swatches in a row, and as many rows as needed to fit the given swatches.
+
+The recent color history sets how many colors the Drawing Tools app will record to list as swatches. These swatches are displayed in the same fashion as the preset swatches.
+
+<img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/settings.png?raw=true" width=50%>
+
 ## Dropper mode additional notes
 While functional, the dropper does have a few quirks. 
 
@@ -65,6 +81,6 @@ Second, the dropper preview or grabbed color may rarely be black even if the cur
 - [x] ~~Add ability to open the menu by some modified click, such as ctrl-click. Need to find a modifier key that isn't used by drawing tools already.~~
 - [x] ~~Add +/- buttons for adjusting line width.~~
 - [x] ~~Add the ability to choose color by using a dropper tool and selecting the color from the canvas.~~
-- [ ] Add selectable color swatches with preset colors and a used color history.
+- [x] ~~Add selectable color swatches with preset colors and a used color history.~~
 - [ ] Modify siderbar button style so that rather than a gray brush icon, the button shows the current stroke/fill color.
 

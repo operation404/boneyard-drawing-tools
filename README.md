@@ -8,6 +8,7 @@
 - [Stroke and Fill settings](#stroke-and-fill-settings)
 - [Color selector](#color-selector)
 - [Shortcut](#shortcut)
+- [Settings](#settings)
 - [Dropper mode additional notes](#dropper-mode-additional-notes)
 - [TODO](#todo)
 

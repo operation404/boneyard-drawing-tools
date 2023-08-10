@@ -418,13 +418,13 @@ export class Drawing_Tools extends Application {
 			? temp
 			: null;
 
-		if (fill !== null) {
+		if (fill !== null && !this.options.preset_color_swatches.includes(fill)) {
 			if ((pos = this.options.recent_color_swatches.findIndex(c => c === fill)) >= 0) {
 				this.options.recent_color_swatches.splice(pos, 1);
 			}
 			this.options.recent_color_swatches.unshift(fill);
 		}
-		if (stroke !== null) {
+		if (stroke !== null && !this.options.preset_color_swatches.includes(stroke)) {
 			if ((pos = this.options.recent_color_swatches.findIndex(c => c === stroke)) >= 0) {
 				this.options.recent_color_swatches.splice(pos, 1);
 			}

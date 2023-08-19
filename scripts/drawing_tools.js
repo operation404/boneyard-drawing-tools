@@ -395,8 +395,8 @@ export class Drawing_Tools extends Application {
 		)
 			? temp
 			: '#000000';
-		config[`strokeAlpha`] = this._element[0].querySelector(`#by-stroke-alpha`).value;
-		config[`fillAlpha`] = this._element[0].querySelector(`#by-fill-alpha`).value;
+		config[`strokeAlpha`] = parseFloat(this._element[0].querySelector(`#by-stroke-alpha`).value);
+		config[`fillAlpha`] = parseFloat(this._element[0].querySelector(`#by-fill-alpha`).value);
 		config[`strokeWidth`] = !isNaN((temp = this._element[0].querySelector(`#by-stroke-width`).value))
 			? (temp = parseInt(temp)) < 0
 				? 0

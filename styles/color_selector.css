@@ -81,7 +81,8 @@ svg#by-hue-siderbar-marker-container {
   top: -2px;
 }
 
-input.by-RGB-input {
+input.by-RGB-input,
+input[type=text].by-RGB-input {
   width: 25px;
   background: white;
   margin-left: 2px;

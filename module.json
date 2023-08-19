@@ -6,10 +6,13 @@
   "library": "false",
   "manifestPlusVersion": "1.2.0",
   "compatibility": {
-    "minimum": 10,
-    "maximum": 11,
-    "verified": 11.301
+    "minimum": 9,
+    "verified": 11.301,
+    "_only_if_breaking__maximum": 11
   },
+  "name": "boneyard-drawing-tools",
+  "minimumCoreVersion": "9",
+  "compatibleCoreVersion": "9.280",
   "authors": [
     {
       "name": "Lich",

@@ -26,6 +26,7 @@ div#by-tool-name-bar {
 
 div#by-control-menu {
   background: #2e353b;
+  width: min-content;
 }
 
 div#by-tool-container {
@@ -99,7 +100,9 @@ span.by-input-label {
   padding: 0 3px 0 3px;
 }
 
-input.by-text-input {
+input.by-text-input,
+input[type=text].by-text-input,
+input[type=number].by-text-input {
   width: 80px;
   background: white;
   display: list-item;

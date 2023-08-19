@@ -7,7 +7,7 @@
   "manifestPlusVersion": "1.2.0",
   "compatibility": {
     "minimum": 9,
-    "verified": 11.301,
+    "verified": 11.307,
     "_only_if_breaking__maximum": 11
   },
   "name": "boneyard-drawing-tools",

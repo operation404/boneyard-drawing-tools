@@ -442,7 +442,7 @@ export class Drawing_Tools extends Application {
         // outermost div has tabindex="0" which allows the whole panel to be focused when clicked
         // so we only close the window if the user has clicked off the panel
 
-		// Check if event actually came from the user clicking off of the panel and
+        // Check if event actually came from the user clicking off of the panel and
         // if the new focus target is still a part of the drawing tools window
         if (
             e.sourceCapabilities !== null &&

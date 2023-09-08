@@ -1,19 +1,23 @@
 # Boneyard Collection
+
 - [Boneyard Drawing Tools](https://github.com/operation404/boneyard-drawing-tools)
 - [Boneyard Template Tools](https://github.com/operation404/boneyard-template-tools)
 - [Boneyard Turn Timer](https://github.com/operation404/boneyard-turn-timer)
 - [Boneyard Socketlib Companion](https://github.com/operation404/boneyard-socketlib-companion)
 
 # Boneyard Drawing Tools
+
 - [Quick drawing settings adjuster](#quick-drawing-settings-adjuster)
 - [Stroke and Fill settings](#stroke-and-fill-settings)
 - [Color selector](#color-selector)
 - [Shortcut](#shortcut)
 - [Settings](#settings)
 - [Dropper mode additional notes](#dropper-mode-additional-notes)
+- [Known Issues](#known-issues)
 - [TODO](#todo)
 
 ## Quick drawing settings adjuster
+
 A new tool is added to the Drawing Layer control sidebar. This tool will open the Drawing Tools configuration panel. This panel allows you to quickly adjust the color, opacity, stroke width, and fill type of your drawing settings. The panel closes automatically upon losing focus and the new settings are saved upon closing.
 
 The Drawing Tools panel is divided into two sections. The left side of the panel has the Stroke and Fill configuration options. Each has a field for inputting a color as a hex string, a slider to change opacity, and options for changing stroke width and fill type. The right side of the panel provides a color selector for more fine tuned control over color selection.
@@ -21,6 +25,7 @@ The Drawing Tools panel is divided into two sections. The left side of the panel
 <img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/drawing_tools_panel_example.png?raw=true" width=40%>
 
 ## Stroke and Fill settings
+
 The input fields for colors must be in 6-digit hexadecimal formats. If the input text does not match that exact pattern, the panel will treat it as black.
 
 The alpha sliders range between 0 and 1 with a 0.1 step size, the same as Foundry's standard slider for drawing opacity.
@@ -36,6 +41,7 @@ The buttons at the top of the Stroke and Fill sections toggle which tool the col
 The Drawing Tools panel will remember the last edited tool, and will set that as the active tool for the color selector when the panel is opened again.
 
 ## Color selector
+
 The color selector canvas gives a visual interface for picking colors. You can click and drag along the canvas to preview colors in real time and the hue slider on the right adjusts the canvas color gradient.
 
 Below the color selector canvas are input fields for the individual RGB components of the currently selected color, show as 2 digit hexadecimal numbers. These can be manually edited to adjust the color.
@@ -73,13 +79,20 @@ The recent color history sets how many colors the Drawing Tools app will record 
 <img src="https://github.com/operation404/boneyard-drawing-tools/blob/master/images/settings.png?raw=true" width=50%>
 
 ## Dropper mode additional notes
-While functional, the dropper does have a few quirks. 
 
-First, if your monitor has UI scaling the dropper preview window may be slightly off from what pixel is actually hovered by the cursor. While the mouse click event does give precise coordinates for the clicked location, the mouse hover event coordinates are rounded according to the UI scaling value. This means that with UI scaling, the dropper preview window may be a pixel off of what is actually the currently hovered pixel. 
+While functional, the dropper does have a few quirks.
+
+First, if your monitor has UI scaling the dropper preview window may be slightly off from what pixel is actually hovered by the cursor. While the mouse click event does give precise coordinates for the clicked location, the mouse hover event coordinates are rounded according to the UI scaling value. This means that with UI scaling, the dropper preview window may be a pixel off of what is actually the currently hovered pixel.
 
 Second, the dropper preview or grabbed color may rarely be black even if the currently hovered area of the canvas is not. This is because the dropper must fetch the pixel data from the canvas drawing buffer as it is being drawn, as the buffer is black outside of an draw event. Foundry uses PIXI for handling the rendering of the canvas, and the drawing event isn't publicly exposed. Rather than try to find a way to hook into the drawing event directly, the dropper instead uses the native requestAnimationFrame call which is normally used to adjust animations before the next canvas repaint. While this works the vast majority of the time, there are occasions where the dropper will fail to grab pixel data before the repaint finishes, hence why you may sometimes see the dropper preview turn black for a frame. This should be a rare occurence however, and the dropper can simply be used again in the unlucky situation where it happened to grab a color after a repaint already finished.
 
+## Known Issues
+- When pf2e is the active game system, clicking on a button and then off of the config panel won't close the config panel. A workaround is to click onto a blank section of the config panel and then off of it, this should close the panel.
+    - Only for the pf2e system, the drawing config panel receives an extra `focusout` event when clicking on any button. The second event has a `relatedTarget` and `sourceCapabilities` of null and originates from the button that was pressed. Originally this would cause the config panel to just outright close when clicking on any button due to the second event's related target not being a child of the config panel. By checking for a null source capability field these secondary events are at least ignored, but they do still change the focus target from the config panel button that was clicked on to null. This means that the panel doesn't properly receive a focusout event when clicking off the panel unless the user clicks back onto it first.
+    - As such, the current fix is only temporary, and a solution to the extra erroneous focusout event still needs to be worked on.
+
 ## TODO
+
 - [x] ~~Add ability to open the menu by some modified click, such as ctrl-click. Need to find a modifier key that isn't used by drawing tools already.~~
 - [x] ~~Add +/- buttons for adjusting line width.~~
 - [x] ~~Add the ability to choose color by using a dropper tool and selecting the color from the canvas.~~

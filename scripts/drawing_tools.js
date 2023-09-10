@@ -434,6 +434,14 @@ export class Drawing_Tools extends Application {
 
     /**
      * 
+     * The first if-statement is implemented as a fix to a bug when used alongside the pf2e system.
+     * For that system only, clicking on any button would emit two focusOut events instead of one,
+     * with the second event having a null sourceCapabilities and relatedTarget field. This would
+     * cause focus to be removed from the drawing config panel, which causes it to close.
+     * Ideally the bug causing a second focusOut event would be fixed to correct this problem, but
+     * as a workaround, checking for non-user-generated events and returning focus seems to restore
+     * functionality without breaking anything.
+     * 
      * @param {FocusEvent} e 
      */
     close_window_handler(e) {

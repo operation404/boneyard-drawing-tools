@@ -441,9 +441,22 @@ export class Drawing_Tools extends Application {
     close_window_handler(e) {
         // outermost div has tabindex="0" which allows the whole panel to be focused when clicked
         // so we only close the window if the user has clicked off the panel
+        console.log(e);
+
+        // check if event didn't come from user device and has no new focus target
+        if (e.sourceCapabilities === null && e.relatedTarget === null) {
+            // return focus to last focused element
+            e.srcElement.focus();
+        } // Check if new focus target is part of drawing config panel
+        else if (!document.querySelector('#by-quick-draw-config').contains(e.relatedTarget)) {
+            this.update_drawing_layer_config();
+            this.save_recent_colors();
+            this.close();
+        }
 
         // Check if event actually came from the user clicking off of the panel and
         // if the new focus target is still a part of the drawing tools window
+        /*
         if (
             e.sourceCapabilities !== null &&
             !document.querySelector('#by-quick-draw-config').contains(e.relatedTarget)
@@ -452,6 +465,7 @@ export class Drawing_Tools extends Application {
             this.save_recent_colors();
             this.close();
         }
+        */
     }
 
     // Overriden to remove the jQuery slideUp animation

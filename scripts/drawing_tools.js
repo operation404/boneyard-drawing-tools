@@ -432,13 +432,17 @@ export class Drawing_Tools extends Application {
         );
     }
 
+    /**
+     * 
+     * @param {FocusEvent} e 
+     */
     close_window_handler(e) {
         // outermost div has tabindex="0" which allows the whole panel to be focused when clicked
         // so we only close the window if the user has clicked off the panel
 
         // if event didn't come from user device and has no new focus target, return focus to event source element
         if (e.sourceCapabilities === null && e.relatedTarget === null) {
-            e.srcElement.focus();
+            e.target.focus();
         }
         // if new focus target not part of drawing config panel, close panel
         else if (!document.querySelector('#by-quick-draw-config').contains(e.relatedTarget)) {

@@ -1,6 +1,10 @@
+## 2.0.8
+- Updating GitHub workflows to fix bug with version field not being set in the module.json file.
+
 ## 2.0.7
+
 - Improved fix for panel closing when clicking a button. (#4)
-    - Still a workaround, but all original module functionality should be restored now.
+   - Still a workaround, but all original module functionality should be restored now.
 
 ## 2.0.6
 

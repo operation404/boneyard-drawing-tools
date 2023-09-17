@@ -2,7 +2,7 @@
   "id": "boneyard-drawing-tools",
   "title": "Boneyard Drawing Tools",
   "description": "Utilities and tools for Drawings.",
-  "version": "This is auto replaced",
+  "version": "#{VERSION}#",
   "library": "false",
   "manifestPlusVersion": "1.2.0",
   "compatibility": {
@@ -41,9 +41,9 @@
       "path": "languages/en.json"
     }
   ],
-  "url": "This is auto replaced",
-  "manifest": "This is auto replaced",
-  "download": "This is auto replaced",
+  "url": "#{URL}#",
+  "manifest": "#{MANIFEST}#",
+  "download": "#{DOWNLOAD}#",
   "license": "LICENSE",
   "readme": "README.md"
 }

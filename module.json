@@ -44,6 +44,6 @@
   "url": "#{URL}#",
   "manifest": "#{MANIFEST}#",
   "download": "#{DOWNLOAD}#",
-  "license": "LICENSE",
-  "readme": "README.md"
+  "license": "#{LICENSE}#",
+  "readme": "#{README}#"
 }

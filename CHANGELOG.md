@@ -1,3 +1,6 @@
+## 2.0.9
+- Updating GitHub workflows to properly link a url for the license and readme of the release.
+
 ## 2.0.8
 - Updating GitHub workflows to fix bug with version field not being set in the module.json file.
 

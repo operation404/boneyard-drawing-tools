@@ -85,9 +85,11 @@ Second, the dropper preview or grabbed color may rarely be black even if the cur
 
 ## TODO
 
+- [ ] Modify siderbar button style so that rather than a gray brush icon, the button shows the current stroke/fill color.
+- [ ] Rewrite the color dropper to use canvas methods provided by the core packages to get pixel colors, rather than hijack the base canvas drawing methods to sample pixel colors.
+- [ ] Add in some new line drawing tools, like a tool for drawing bezier curves or simplifying curves into approximates made up of straight line segments.
 - [x] ~~Add ability to open the menu by some modified click, such as ctrl-click. Need to find a modifier key that isn't used by drawing tools already.~~
 - [x] ~~Add +/- buttons for adjusting line width.~~
 - [x] ~~Add the ability to choose color by using a dropper tool and selecting the color from the canvas.~~
 - [x] ~~Add selectable color swatches with preset colors and a used color history.~~
-- [ ] Modify siderbar button style so that rather than a gray brush icon, the button shows the current stroke/fill color.
 

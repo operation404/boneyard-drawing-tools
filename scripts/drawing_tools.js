@@ -332,9 +332,13 @@ export class Drawing_Tools extends Application {
     update_html_colors(color, tool, caller) {
         // caller is either "button", "text", or "selector"
 
+        const color_string = color.toHTML();
+
         // Button color and text input for tool always updates
         if (caller !== 'button') {
-            document.querySelector(`#by-quick-draw-config #by-${tool}-color`).style.setProperty('background', color);
+            document
+                .querySelector(`#by-quick-draw-config #by-${tool}-color`)
+                .style.setProperty('background', color_string);
         }
         if (caller !== 'button' && caller !== 'text') {
             document.querySelector(`#by-quick-draw-config #by-${tool}-color-text`).value = color;
@@ -342,10 +346,12 @@ export class Drawing_Tools extends Application {
 
         // Only update color selector if updated color is for the currently selected tool
         if (tool === Drawing_Tools.current_tool) {
-            document.querySelector('#by-quick-draw-config #by-tool-name-bar').style.setProperty('background', color);
+            document
+                .querySelector('#by-quick-draw-config #by-tool-name-bar')
+                .style.setProperty('background', color_string);
             document
                 .querySelector('#by-quick-draw-config #by-color-selector-background')
-                .style.setProperty('background-image', Drawing_Tools.generate_smooth_gradient_style(color));
+                .style.setProperty('background-image', Drawing_Tools.generate_smooth_gradient_style(color_string));
 
             if (caller !== 'selector') {
                 this.color_selector.update_html_colors(color, 'external');
@@ -356,7 +362,7 @@ export class Drawing_Tools extends Application {
     color_text_handler(e) {
         const tool = e.target.dataset.tool;
         const update_color = Drawing_Tools.hex_test.test(e.target.value) ? e.target.value : '#000000';
-        this.update_html_colors(update_color, tool, 'text');
+        this.update_html_colors(Color.fromString(update_color), tool, 'text');
     }
 
     alpha_slider_handler(e) {

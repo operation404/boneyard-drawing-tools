@@ -8,7 +8,7 @@ export class Color_Selector {
 
     static default_options = {
         canvas_size: 150,
-        color: '#FF0000',
+        color: Color.fromString('#FF0000'),
         dropper_preview_size: 50,
         dropper_read_size: 5, // radius of 3
         preset_color_swatches: [],
@@ -27,6 +27,13 @@ export class Color_Selector {
             .padStart(2, '0')}`;
     }
 
+    /* TODO
+	This and potentially other helper methods I wrote to provide the necessary functionality
+	for this module are likely not needed anymore. Foundry has added a Color core utility type
+	which provides many methods for modifying and representing colors. The next step after
+	fixing breaking compatibility issues with v13 should be to update the module to take
+	advantage of this new Color type.
+	*/
     // returns a 3-vec with values ranging from 0 to 1
     static rbg_vec_to_hsv(rgb_vec) {
         const red = rgb_vec[0] / 255;
@@ -76,13 +83,14 @@ export class Color_Selector {
     }
 
     render_and_attach_html(parent_element, data = {}) {
+        const color_string = this.options.color.toString();
         data = {
             canvas_size: this.options.canvas_size,
             ...data,
             hue_height: this.options.canvas_size + 4,
-            red: this.options.color.slice(1, 3),
-            green: this.options.color.slice(3, 5),
-            blue: this.options.color.slice(5, 7),
+            red: color_string.slice(1, 3),
+            green: color_string.slice(3, 5),
+            blue: color_string.slice(5, 7),
         };
         parent_element.innerHTML = Color_Selector._template(data);
         this._element = parent_element.querySelector('#by-color-selector');
@@ -102,7 +110,7 @@ export class Color_Selector {
         this.red_input = this._element.querySelector('#by-red-text');
         this.green_input = this._element.querySelector('#by-green-text');
         this.blue_input = this._element.querySelector('#by-blue-text');
-        this.change_canvas_gradients(this.options.color);
+        this.change_canvas_gradients(color_string);
         this.update_canvas(this.options.color);
         this.dropper_button = this._element.querySelector('#by-dropper-button');
         this.random_button = this._element.querySelector('#by-random-button');
@@ -149,7 +157,7 @@ export class Color_Selector {
         );
     }
 
-    change_canvas_gradients(color) {
+    change_canvas_gradients(color_string) {
         if (this._element === undefined) {
             console.error('No Color_Selector HTML element rendered.');
             throw 'No Color_Selector HTML element rendered.';
@@ -157,7 +165,7 @@ export class Color_Selector {
         // horizontal white to passed color
         const horizontal_gradient = this.canvas_context.createLinearGradient(0, 0, this.canvas_context.canvas.width, 0);
         horizontal_gradient.addColorStop(0, '#fff');
-        horizontal_gradient.addColorStop(1, color);
+        horizontal_gradient.addColorStop(1, color_string);
         this.canvas_context.fillStyle = horizontal_gradient;
         this.canvas_context.fillRect(0, 0, this.canvas_context.canvas.width, this.canvas_context.canvas.height);
 
@@ -214,7 +222,7 @@ export class Color_Selector {
         const red = parseInt(fragments[0].trim()).toString(16).padStart(2, '0');
         const green = parseInt(fragments[1].trim()).toString(16).padStart(2, '0');
         const blue = parseInt(fragments[2].trim()).toString(16).padStart(2, '0');
-        this.update_html_colors(`#${red}${green}${blue}`, 'swatch');
+        this.update_html_colors(Color.fromString(`#${red}${green}${blue}`), 'swatch');
     }
 
     initialize_dropper() {
@@ -266,7 +274,7 @@ export class Color_Selector {
                         this.gl.UNSIGNED_BYTE,
                         this.pixels
                     );
-                    this.update_html_colors(Color_Selector.color_vec_to_str([...this.pixels.slice(0, 3)]), 'dropper');
+                    this.update_html_colors(Color.fromString(Color_Selector.color_vec_to_str([...this.pixels.slice(0, 3)])), 'dropper');
                 });
             }
             e.preventDefault();
@@ -349,7 +357,7 @@ export class Color_Selector {
 
     random_button_handler(e) {
         const v = [Math.floor(Math.random() * 256), Math.floor(Math.random() * 256), Math.floor(Math.random() * 256)];
-        const s = Color_Selector.color_vec_to_str(v);
+        const s = Color.fromString(Color_Selector.color_vec_to_str(v));
         this.update_html_colors(s, 'random');
     }
 
@@ -363,7 +371,7 @@ export class Color_Selector {
         const blue = Color_Selector.partial_hex_test.test(this.blue_input.value)
             ? this.blue_input.value.padStart(2, '0')
             : '00';
-        this.update_html_colors(`#${red}${green}${blue}`, 'rgb');
+        this.update_html_colors(Color.fromString(`#${red}${green}${blue}`), 'rgb');
     }
 
     canvas_mousedown_handler(e) {
@@ -429,7 +437,7 @@ export class Color_Selector {
         const hue = this.get_hue();
         const saturation = this.canvas_marker.getAttribute('cx') / this.options.canvas_size;
         const value = 1 - this.canvas_marker.getAttribute('cy') / this.options.canvas_size;
-        return Color_Selector.color_vec_to_str(Color_Selector.hsv_vec_to_rgb([hue, saturation, value]));
+        return Color.fromString(Color_Selector.color_vec_to_str(Color_Selector.hsv_vec_to_rgb([hue, saturation, value])));
     }
 
     update_html_colors(color, caller) {
@@ -446,7 +454,7 @@ export class Color_Selector {
     }
 
     update_canvas(color) {
-        const hsv = Color_Selector.rbg_vec_to_hsv(Color_Selector.color_str_to_vec(color));
+        const hsv = Color_Selector.rbg_vec_to_hsv(color.rgb);
         this.move_hue_marker(Math.floor(this.options.canvas_size * hsv[0]));
         this.move_canvas_marker(
             Math.round(this.options.canvas_size * hsv[1]),

@@ -232,29 +232,13 @@ export class Drawing_Tools extends Application {
         } else {
             // ---- Drawing Tools control button was pressed
 
-            const controls_container = document.querySelector('#ui-left > #controls');
-            const controls_container_style = window.getComputedStyle(controls_container);
-            const sub_controls = document.querySelector('#controls > ol.sub-controls.app.control-tools.flexcol.active');
-            const control = sub_controls.firstElementChild;
-            const control_style = window.getComputedStyle(control);
-
-            // offsetHeight includes padding+border but not margin
-            const control_height =
-                control.offsetHeight + parseFloat(control_style.marginTop) + parseFloat(control_style.marginBottom);
-            const control_width =
-                control.offsetWidth + parseFloat(control_style.marginLeft) + parseFloat(control_style.marginRight);
-            const max_controls_per_col = Math.floor(sub_controls.offsetHeight / control_height);
-
-            // There's always 1 main control column + potentially multiple sub-control columns
-            const columns = 1 + Math.ceil(sub_controls.childElementCount / max_controls_per_col);
-
-            const offset_left = columns * control_width + parseFloat(controls_container_style.paddingLeft);
-
             // The drawing sub-controls should be the active set, so just query that
+            const sub_controls = ui.controls.element.childNodes[1];
             const drawing_tool = sub_controls.querySelector(`[data-tool='quick-draw-config']`);
             const drawing_tool_rect = drawing_tool.getBoundingClientRect();
             const drawing_tool_y_center = drawing_tool_rect.top + drawing_tool_rect.height / 2; // not sure if .top or .y is better
 
+            const offset_left = ui.controls.element.offsetLeft + ui.controls.element.offsetWidth;
             const offset_top = drawing_tool_y_center - this._element[0].offsetHeight / 2;
 
             this._element[0].style.left = `${offset_left}px`;

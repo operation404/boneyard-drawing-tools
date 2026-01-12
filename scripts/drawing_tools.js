@@ -12,9 +12,17 @@ import {
 } from './constants.js';
 import { Color_Selector } from './color_selector.js';
 
-export class Drawing_Tools extends Application {
+export class Drawing_Tools extends foundry.applications.api.HandlebarsApplicationMixin(
+    foundry.applications.api.ApplicationV2
+) {
     static hex_test = /^#[0-9A-F]{6}$/i;
     static current_tool = 'stroke';
+
+    static PARTS = {
+        form: {
+            template: `modules/boneyard-drawing-tools/templates/quick-draw-config.hbs`,
+        },
+    };
 
     static init() {
         Drawing_Tools.prepare_hook_handlers();
@@ -111,7 +119,7 @@ export class Drawing_Tools extends Application {
     }
 
     static get defaultOptions() {
-        return mergeObject(super.defaultOptions, {
+        return foundry.utils.mergeObject(super.defaultOptions, {
             template: `modules/boneyard-drawing-tools/templates/quick-draw-config.hbs`,
             id: MODULE,
             popOut: false,
@@ -174,8 +182,13 @@ export class Drawing_Tools extends Application {
      */
     constructor(options = {}) {
         options = { ...Drawing_Tools.get_settings(), ...options };
+        options.window = {
+            frame: false,
+            positioned: true,
+        };
+        options.classes = ['application'];
         super(options);
-        const drawing_defaults = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
+        const drawing_defaults = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
         this.color_selector = new Color_Selector(
             { color: drawing_defaults[`${Drawing_Tools.current_tool}Color`], ...options },
             Drawing_Tools.mouse_pos
@@ -183,7 +196,7 @@ export class Drawing_Tools extends Application {
     }
 
     getData() {
-        const drawing_defaults = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
+        const drawing_defaults = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
         if (drawing_defaults === undefined) {
             console.error('Could not load DrawingsLayer Default Config Settings.');
             throw 'Could not load DrawingsLayer Default Config Settings.';
@@ -211,11 +224,11 @@ export class Drawing_Tools extends Application {
 
     _injectHTML(html) {
         $('body').append(html);
-        this._element = html;
+        this.element = html;
     }
 
-    async _render(force = false, options = {}) {
-        await super._render(force, options);
+    async _renderHTML2(context, options = {}) {
+        var element = await super._renderHTML(context, options);
 
         // ---- Set the proper coordinates for the window ----
         if (this.options.x !== undefined && this.options.y !== undefined) {
@@ -223,12 +236,12 @@ export class Drawing_Tools extends Application {
 
             let x = this.options.x,
                 y = this.options.y;
-            const panel_bounds = this._element[0].getBoundingClientRect();
+            const panel_bounds = this.element.getBoundingClientRect();
             x = (x -= panel_bounds.width / 2) < 0 ? 0 : x;
             x = x + panel_bounds.width / 2 > window.innerWidth ? window.innerWidth - panel_bounds.width : x;
             y = (y += 10) + panel_bounds.height > window.innerHeight ? window.innerHeight - panel_bounds.height : y;
-            this._element[0].style.left = `${x}px`;
-            this._element[0].style.top = `${y}px`;
+            this.element.style.left = `${x}px`;
+            this.element.style.top = `${y}px`;
         } else {
             // ---- Drawing Tools control button was pressed
 
@@ -239,14 +252,18 @@ export class Drawing_Tools extends Application {
             const drawing_tool_y_center = drawing_tool_rect.top + drawing_tool_rect.height / 2; // not sure if .top or .y is better
 
             const offset_left = ui.controls.element.offsetLeft + ui.controls.element.offsetWidth;
-            const offset_top = drawing_tool_y_center - this._element[0].offsetHeight / 2;
+            const offset_top = drawing_tool_y_center - this.element.offsetHeight / 2;
 
-            this._element[0].style.left = `${offset_left}px`;
-            this._element[0].style.top = `${offset_top}px`;
+            this.element.style.left = `${offset_left}px`;
+            this.element.style.top = `${offset_top}px`;
         }
 
         // Focus the dropper button
-        this._element[0].querySelector(`#by-dropper-button`).focus();
+        //this.element.querySelector(`#by-dropper-button`).focus();
+    }
+
+    _replaceHTML(result, content, options) {
+        super._replaceHTML(result, content, options);
     }
 
     activateListeners(html) {
@@ -309,7 +326,7 @@ export class Drawing_Tools extends Application {
         document.querySelector('#by-quick-draw-config #by-selected-tool').textContent = game.i18n.localize(
             `CONTROLS.${tool}_color`
         );
-        const drawing_defaults = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
+        const drawing_defaults = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
         this.update_html_colors(drawing_defaults[`${tool}Color`], tool, 'button');
     }
 
@@ -355,7 +372,7 @@ export class Drawing_Tools extends Application {
     }
 
     stroke_width_companion_button_handler(e) {
-        const width_input_element = this._element[0].querySelector(`#by-stroke-width`);
+        const width_input_element = this.element[0].querySelector(`#by-stroke-width`);
         let width;
         width = !isNaN((width = width_input_element.value)) ? parseInt(width) : 12;
         width += (e.target.textContent === '-' ? -1 : +1) * (e.shiftKey ? 5 : 1);
@@ -363,7 +380,7 @@ export class Drawing_Tools extends Application {
     }
 
     update_drawing_layer_config() {
-        let config = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
+        let config = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
         if (config === undefined) {
             console.error('Could not load DrawingsLayer Default Config Settings.');
             return;
@@ -371,35 +388,35 @@ export class Drawing_Tools extends Application {
 
         let temp;
         config[`strokeColor`] = Drawing_Tools.hex_test.test(
-            (temp = this._element[0].querySelector(`#by-stroke-color-text`).value)
+            (temp = this.element[0].querySelector(`#by-stroke-color-text`).value)
         )
             ? temp
             : '#000000';
         config[`fillColor`] = Drawing_Tools.hex_test.test(
-            (temp = this._element[0].querySelector(`#by-fill-color-text`).value)
+            (temp = this.element[0].querySelector(`#by-fill-color-text`).value)
         )
             ? temp
             : '#000000';
-        config[`strokeAlpha`] = parseFloat(this._element[0].querySelector(`#by-stroke-alpha`).value);
-        config[`fillAlpha`] = parseFloat(this._element[0].querySelector(`#by-fill-alpha`).value);
-        config[`strokeWidth`] = !isNaN((temp = this._element[0].querySelector(`#by-stroke-width`).value))
+        config[`strokeAlpha`] = parseFloat(this.element[0].querySelector(`#by-stroke-alpha`).value);
+        config[`fillAlpha`] = parseFloat(this.element[0].querySelector(`#by-fill-alpha`).value);
+        config[`strokeWidth`] = !isNaN((temp = this.element[0].querySelector(`#by-stroke-width`).value))
             ? (temp = parseInt(temp)) < 0
                 ? 0
                 : temp
             : 12;
-        config[`fillType`] = parseInt(this._element[0].querySelector(`#by-fill-type`).value);
+        config[`fillType`] = parseInt(this.element[0].querySelector(`#by-fill-type`).value);
 
-        game.settings.set('core', DrawingsLayer.DEFAULT_CONFIG_SETTING, config);
+        game.settings.set('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING, config);
     }
 
     save_recent_colors() {
         let temp, pos;
         const stroke = Drawing_Tools.hex_test.test(
-            (temp = this._element[0].querySelector(`#by-stroke-color-text`).value)
+            (temp = this.element[0].querySelector(`#by-stroke-color-text`).value)
         )
             ? temp
             : null;
-        const fill = Drawing_Tools.hex_test.test((temp = this._element[0].querySelector(`#by-fill-color-text`).value))
+        const fill = Drawing_Tools.hex_test.test((temp = this.element[0].querySelector(`#by-fill-color-text`).value))
             ? temp
             : null;
 
@@ -472,7 +489,7 @@ export class Drawing_Tools extends Application {
         return new Promise((resolve) => {
             el.remove();
             // Clean up data
-            this._element = null;
+            this.element = null;
             delete ui.windows[this.appId];
             this._minimized = false;
             this._scrollPositions = null;

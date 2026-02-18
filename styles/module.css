@@ -1,13 +1,5 @@
 /* Boneyard Drawing Tools - Main Panel Styles */
 
-/* ApplicationV2 wrapper - frameless, no window chrome */
-.by-drawing-tools {
-  all: unset;
-  position: fixed;
-  z-index: 100;
-  pointer-events: auto;
-}
-
 div.by-row-container {
   display: flex;
   flex-direction: row;
@@ -18,42 +10,12 @@ div.by-col-container {
   flex-direction: column;
 }
 
-div#by-quick-draw-config {
-  margin: 0;
-  padding: 0;
-  box-shadow: none;
-  border: none;
-  height: fit-content;
-  width: fit-content;
-  background: none;
-}
-
 div#by-tool-name-bar {
-  border-radius: 10px 10px 0 0;
-  position: relative;
-}
-
-button#by-close-button {
-  position: absolute;
-  right: 2px;
-  top: 0;
-  background: none;
-  border: none;
-  color: white;
-  font-size: 14px;
-  line-height: 16px;
-  cursor: pointer;
-  padding: 0 4px;
-  opacity: 0.7;
-  z-index: 1;
-}
-
-button#by-close-button:hover {
-  opacity: 1;
+  border-radius: 4px 4px 0 0;
 }
 
 div#by-control-menu {
-  background: #2e353b;
+  background: var(--color-cool-5, #2e353b);
   width: min-content;
 }
 
@@ -77,8 +39,6 @@ div#by-fill-menu > * {
 label.by-text {
   white-space: nowrap;
   flex-grow: 0;
-  color: #c9c9c9;
-  font-size: 12px;
 }
 
 svg > text.by-stroke-text {
@@ -113,8 +73,6 @@ button.by-color-button {
   height: 40px;
   display: block;
   margin: 0 auto;
-  border: 1px solid #555;
-  border-radius: 4px;
   cursor: pointer;
 }
 
@@ -128,18 +86,13 @@ button.by-input-companion-button {
 
 span.by-input-label {
   padding: 0 3px;
-  color: #c9c9c9;
-  font-size: 12px;
 }
 
 input.by-text-input,
 input[type=text].by-text-input,
 input[type=number].by-text-input {
   width: 80px;
-  background: white;
-  color: black;
   display: list-item;
-  border: 1px solid #555;
 }
 
 input.by-text-input#by-stroke-width {
@@ -158,9 +111,6 @@ select.by-select {
   text-align: left;
   width: 80px;
   display: list-item;
-  background: white;
-  color: black;
-  border: 1px solid #555;
 }
 
 select.by-select#by-fill-type {

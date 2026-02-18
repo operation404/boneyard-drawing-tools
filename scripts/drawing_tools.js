@@ -34,10 +34,10 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	static DEFAULT_OPTIONS = {
 		id: 'boneyard-drawing-tools',
 		classes: ['by-drawing-tools'],
-		tag: 'div',
 		window: {
-			frame: false,
-			positioned: true,
+			title: 'CONTROLS.QuickDrawConfig',
+			icon: 'fas fa-paint-brush',
+			resizable: false,
 		},
 		position: {
 			width: 'auto',
@@ -48,7 +48,6 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 			fillColor: Drawing_Tools.#onColorButton,
 			strokeWidthMinus: Drawing_Tools.#onStrokeWidthButton,
 			strokeWidthPlus: Drawing_Tools.#onStrokeWidthButton,
-			closePanel: Drawing_Tools.#onClosePanel,
 		},
 	};
 
@@ -180,9 +179,6 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	_onRender(context, options) {
 		const el = this.element;
 
-		// Position the panel
-		this.#positionPanel();
-
 		// Attach non-action event listeners
 		el.querySelector('#by-stroke-color-text')?.addEventListener('input', (e) => this.#colorTextHandler(e));
 		el.querySelector('#by-fill-color-text')?.addEventListener('input', (e) => this.#colorTextHandler(e));
@@ -196,57 +192,12 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 		this.color_selector.activate_listeners(el, (color) => {
 			this.#updateHtmlColors(color, Drawing_Tools.current_tool, 'selector');
 		});
-
-		// Focus the dropper button
-		el.querySelector('#by-dropper-button')?.focus();
-	}
-
-	#positionPanel() {
-		const el = this.element;
-		const panel_bounds = el.getBoundingClientRect();
-
-		// Try to position near the control button
-		const sub_controls = document.querySelector('#controls ol.sub-controls.active');
-		if (sub_controls) {
-			const drawing_tool = sub_controls.querySelector(`[data-tool='quick-draw-config']`);
-			if (drawing_tool) {
-				const controls_container = document.querySelector('#ui-left #controls');
-				const controls_container_style = window.getComputedStyle(controls_container);
-				const control = sub_controls.firstElementChild;
-				const control_style = window.getComputedStyle(control);
-
-				const control_height =
-					control.offsetHeight + parseFloat(control_style.marginTop) + parseFloat(control_style.marginBottom);
-				const control_width =
-					control.offsetWidth + parseFloat(control_style.marginLeft) + parseFloat(control_style.marginRight);
-				const max_controls_per_col = Math.floor(sub_controls.offsetHeight / control_height);
-				const columns = 1 + Math.ceil(sub_controls.childElementCount / max_controls_per_col);
-				const offset_left = columns * control_width + parseFloat(controls_container_style.paddingLeft);
-
-				const drawing_tool_rect = drawing_tool.getBoundingClientRect();
-				const drawing_tool_y_center = drawing_tool_rect.top + drawing_tool_rect.height / 2;
-				const offset_top = drawing_tool_y_center - panel_bounds.height / 2;
-
-				el.style.left = `${offset_left}px`;
-				el.style.top = `${offset_top}px`;
-				return;
-			}
-		}
-
-		// Fallback: position near mouse
-		let x = Drawing_Tools.mouse_pos.x;
-		let y = Drawing_Tools.mouse_pos.y;
-		x = (x -= panel_bounds.width / 2) < 0 ? 0 : x;
-		x = x + panel_bounds.width / 2 > window.innerWidth ? window.innerWidth - panel_bounds.width : x;
-		y = (y += 10) + panel_bounds.height > window.innerHeight ? window.innerHeight - panel_bounds.height : y;
-		el.style.left = `${x}px`;
-		el.style.top = `${y}px`;
 	}
 
 	// --- Action handlers (static, called via data-action) ---
 
 	static #onColorButton(event, target) {
-		const app = this; // ApplicationV2 binds `this` to the app instance for actions
+		const app = this;
 		const tool = target.dataset.tool;
 		Drawing_Tools.current_tool = tool;
 		const el = app.element;
@@ -304,11 +255,6 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 		this.#updateDrawingLayerConfig();
 	}
 
-	static #onClosePanel(event, target) {
-		const app = this;
-		app.close();
-	}
-
 	async close(options = {}) {
 		this.#updateDrawingLayerConfig();
 		this.#saveRecentColors();
@@ -317,13 +263,14 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	}
 
 	#updateDrawingLayerConfig() {
+		const el = this.element;
+		if (!el) return;
 		let config = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
 		if (config === undefined) {
 			console.error('Could not load DrawingsLayer Default Config Settings.');
 			return;
 		}
 
-		const el = this.element;
 		let temp;
 		config['strokeColor'] = Drawing_Tools.hex_test.test(
 			(temp = el.querySelector('#by-stroke-color-text').value)
@@ -343,6 +290,7 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 
 	#saveRecentColors() {
 		const el = this.element;
+		if (!el) return;
 		let temp, pos;
 		const stroke = Drawing_Tools.hex_test.test(
 			(temp = el.querySelector('#by-stroke-color-text').value)

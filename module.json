@@ -2,7 +2,7 @@
   "id": "boneyard-drawing-tools",
   "title": "Boneyard Drawing Tools",
   "description": "Utilities and tools for Drawings.",
-  "version": "2.0.0",
+  "version": "#{VERSION}#",
   "library": false,
   "manifestPlusVersion": "1.2.0",
   "compatibility": {

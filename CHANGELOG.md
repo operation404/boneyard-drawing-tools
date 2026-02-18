@@ -1,3 +1,20 @@
+## 3.0.0
+
+- **Breaking:** Requires Foundry VTT v13.
+- Migrated to ApplicationV2 (`HandlebarsApplicationMixin`). The panel is now a standard Foundry window — draggable, with native title bar and close button.
+- Replaced custom keyboard shortcut system with Foundry's built-in `game.keybindings` API. Shortcuts are now configured through Foundry's Configure Controls menu.
+- Replaced direct WebGL `readPixels` dropper with PIXI renderer extract API.
+- Updated `getSceneControlButtons` hook for v13's object-keyed controls format.
+- Updated `DrawingsLayer` references to `foundry.canvas.layers.DrawingsLayer`.
+- Color values from drawing defaults are now normalized to handle `Color` objects.
+- Settings changes are applied in real-time (no need to close the panel).
+- Window position is remembered between opens.
+- Toolbar tooltip shows the current keyboard shortcut.
+- Removed jQuery usage throughout.
+- Removed unused `vector_math.js`.
+- Fixed duplicate preset color swatches setting registration.
+- Fixed dropper preview size setting type (was `String`, now `Number`).
+
 ## 2.0.9
 - Updating GitHub workflows to properly link a url for the license and readme of the release.
 

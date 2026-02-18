@@ -16,6 +16,18 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	static current_tool = 'stroke';
 	static mouse_pos = { x: 0, y: 0 };
 
+	/**
+	 * Normalize a color value to a hex string (#RRGGBB).
+	 * Handles hex strings, Color objects, and numeric values.
+	 */
+	static toHexString(value) {
+		if (typeof value === 'string' && Drawing_Tools.hex_test.test(value)) return value;
+		if (value instanceof foundry.utils.Color) return value.css.slice(0, 7);
+		if (typeof value === 'string') return value;
+		if (typeof value === 'number') return '#' + value.toString(16).padStart(6, '0');
+		return '#000000';
+	}
+
 	/** @type {Drawing_Tools|null} */
 	static _instance = null;
 
@@ -131,30 +143,31 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	constructor(settings = {}) {
 		super();
 		this._settings = settings;
-		const drawing_defaults = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
+		const drawing_defaults = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
 		this.color_selector = new Color_Selector(
-			{ color: drawing_defaults[`${Drawing_Tools.current_tool}Color`], ...settings },
+			{ color: Drawing_Tools.toHexString(drawing_defaults[`${Drawing_Tools.current_tool}Color`]), ...settings },
 			Drawing_Tools.mouse_pos
 		);
 	}
 
 	async _prepareContext(options) {
-		const drawing_defaults = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
+		const drawing_defaults = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
 		if (drawing_defaults === undefined) {
 			console.error('Could not load DrawingsLayer Default Config Settings.');
 			throw new Error('Could not load DrawingsLayer Default Config Settings.');
 		}
 
-		const current_color =
-			Drawing_Tools.current_tool === 'stroke' ? drawing_defaults['strokeColor'] : drawing_defaults['fillColor'];
+		const stroke_color = Drawing_Tools.toHexString(drawing_defaults['strokeColor']);
+		const fill_color = Drawing_Tools.toHexString(drawing_defaults['fillColor']);
+		const current_color = Drawing_Tools.current_tool === 'stroke' ? stroke_color : fill_color;
 		return {
 			current_tool: Drawing_Tools.current_tool,
 			current_tool_tooltip: game.i18n.localize(`CONTROLS.${Drawing_Tools.current_tool}_color`),
 			name_bar_color: current_color,
 			start_gradient: Drawing_Tools.generate_smooth_gradient_style(current_color),
-			stroke_color: drawing_defaults['strokeColor'],
+			stroke_color: stroke_color,
 			stroke_alpha: drawing_defaults['strokeAlpha'],
-			fill_color: drawing_defaults['fillColor'],
+			fill_color: fill_color,
 			fill_alpha: drawing_defaults['fillAlpha'],
 			stroke_width: drawing_defaults.strokeWidth,
 			none_selected: drawing_defaults.fillType === 0 ? 'selected' : '',
@@ -237,8 +250,8 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 		Drawing_Tools.current_tool = tool;
 		const el = app.element;
 		el.querySelector('#by-selected-tool').textContent = game.i18n.localize(`CONTROLS.${tool}_color`);
-		const drawing_defaults = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
-		app.#updateHtmlColors(drawing_defaults[`${tool}Color`], tool, 'button');
+		const drawing_defaults = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
+		app.#updateHtmlColors(Drawing_Tools.toHexString(drawing_defaults[`${tool}Color`]), tool, 'button');
 	}
 
 	static #onStrokeWidthButton(event, target) {
@@ -298,7 +311,7 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	}
 
 	#updateDrawingLayerConfig() {
-		let config = game.settings.get('core', DrawingsLayer.DEFAULT_CONFIG_SETTING);
+		let config = game.settings.get('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING);
 		if (config === undefined) {
 			console.error('Could not load DrawingsLayer Default Config Settings.');
 			return;
@@ -319,7 +332,7 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 			: 12;
 		config['fillType'] = parseInt(el.querySelector('#by-fill-type').value);
 
-		game.settings.set('core', DrawingsLayer.DEFAULT_CONFIG_SETTING, config);
+		game.settings.set('core', foundry.canvas.layers.DrawingsLayer.DEFAULT_CONFIG_SETTING, config);
 	}
 
 	#saveRecentColors() {

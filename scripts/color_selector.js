@@ -2,6 +2,12 @@ export class Color_Selector {
 	static _template = null;
 	static _template_path = 'modules/boneyard-drawing-tools/templates/color-selector.hbs';
 
+	static async loadTemplate() {
+		const response = await fetch(Color_Selector._template_path);
+		const data = await response.text();
+		Color_Selector._template = Handlebars.compile(data);
+	}
+
 	static default_options = {
 		canvas_size: 150,
 		color: '#FF0000',
@@ -440,7 +446,3 @@ export class Color_Selector {
 	}
 }
 
-// Load and compile the color selector template using Foundry's global Handlebars
-fetch(Color_Selector._template_path)
-	.then((response) => response.text())
-	.then((data) => (Color_Selector._template = Handlebars.compile(data)));

@@ -48,6 +48,7 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 			fillColor: Drawing_Tools.#onColorButton,
 			strokeWidthMinus: Drawing_Tools.#onStrokeWidthButton,
 			strokeWidthPlus: Drawing_Tools.#onStrokeWidthButton,
+			closePanel: Drawing_Tools.#onClosePanel,
 		},
 	};
 
@@ -187,7 +188,7 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 		el.querySelector('#by-fill-color-text')?.addEventListener('input', (e) => this.#colorTextHandler(e));
 		el.querySelector('#by-stroke-alpha')?.addEventListener('input', (e) => this.#alphaSliderHandler(e));
 		el.querySelector('#by-fill-alpha')?.addEventListener('input', (e) => this.#alphaSliderHandler(e));
-		el.addEventListener('focusout', (e) => this.#closeWindowHandler(e));
+		el.querySelector('#by-fill-type')?.addEventListener('change', () => this.#updateDrawingLayerConfig());
 
 		// Insert the color picker
 		const color_selector_menu = el.querySelector('#by-color-selector-menu');
@@ -260,6 +261,7 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 		let width = !isNaN(width_input.value) ? parseInt(width_input.value) : 12;
 		width += (target.textContent === '-' ? -1 : +1) * (event.shiftKey ? 5 : 1);
 		width_input.value = width < 0 ? 0 : width;
+		app.#updateDrawingLayerConfig();
 	}
 
 	// --- Instance event handlers ---
@@ -273,10 +275,12 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	#alphaSliderHandler(e) {
 		const tool = e.target.dataset.tool;
 		this.element.querySelector(`#by-${tool}-alpha-label`).textContent = e.target.value;
+		this.#updateDrawingLayerConfig();
 	}
 
 	#updateHtmlColors(color, tool, caller) {
 		const el = this.element;
+		if (!el) return;
 		if (caller !== 'button') {
 			el.querySelector(`#by-${tool}-color`)?.style.setProperty('background', color);
 		}
@@ -296,18 +300,20 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 				this.color_selector.update_html_colors(color, 'external');
 			}
 		}
+
+		this.#updateDrawingLayerConfig();
 	}
 
-	#closeWindowHandler(e) {
-		if (e.sourceCapabilities === null && e.relatedTarget === null) {
-			e.target.focus();
-			return;
-		}
-		if (!this.element.contains(e.relatedTarget)) {
-			this.#updateDrawingLayerConfig();
-			this.#saveRecentColors();
-			this.close();
-		}
+	static #onClosePanel(event, target) {
+		const app = this;
+		app.close();
+	}
+
+	async close(options = {}) {
+		this.#updateDrawingLayerConfig();
+		this.#saveRecentColors();
+		Drawing_Tools._instance = null;
+		return super.close(options);
 	}
 
 	#updateDrawingLayerConfig() {

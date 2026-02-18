@@ -35,7 +35,7 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 		id: 'boneyard-drawing-tools',
 		classes: ['by-drawing-tools'],
 		window: {
-			title: 'CONTROLS.QuickDrawConfig',
+			title: 'CONTROLS.QuickDrawConfigTitle',
 			icon: 'fas fa-paint-brush',
 			resizable: false,
 		},

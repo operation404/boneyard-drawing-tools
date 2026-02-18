@@ -3,16 +3,12 @@
   "title": "Boneyard Drawing Tools",
   "description": "Utilities and tools for Drawings.",
   "version": "#{VERSION}#",
-  "library": "false",
+  "library": false,
   "manifestPlusVersion": "1.2.0",
   "compatibility": {
-    "minimum": 9,
-    "verified": 11.307,
-    "_only_if_breaking__maximum": 11
+    "minimum": 13,
+    "verified": 13
   },
-  "name": "boneyard-drawing-tools",
-  "minimumCoreVersion": "9",
-  "compatibleCoreVersion": "9.280",
   "authors": [
     {
       "name": "Lich",
@@ -30,9 +26,7 @@
   "scripts": [],
   "styles": [
     "styles/module.css",
-    "styles/module.css.map",
-    "styles/color_selector.css",
-    "styles/color_selector.css.map"
+    "styles/color_selector.css"
   ],
   "languages": [
     {

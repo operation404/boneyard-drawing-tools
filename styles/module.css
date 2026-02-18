@@ -1,4 +1,13 @@
-/* Using a # allows styling to be applied by id rather than class */
+/* Boneyard Drawing Tools - Main Panel Styles */
+
+/* ApplicationV2 wrapper - frameless, no window chrome */
+.by-drawing-tools {
+  all: unset;
+  position: fixed;
+  z-index: 100;
+  pointer-events: auto;
+}
+
 div.by-row-container {
   display: flex;
   flex-direction: row;
@@ -14,7 +23,6 @@ div#by-quick-draw-config {
   padding: 0;
   box-shadow: none;
   border: none;
-  position: absolute;
   height: fit-content;
   width: fit-content;
   background: none;
@@ -30,7 +38,7 @@ div#by-control-menu {
 }
 
 div#by-tool-container {
-  box-shadow: 4px 0px 4px -2px rgba(0, 0, 0, 0.3764705882);
+  box-shadow: 4px 0px 4px -2px rgba(0, 0, 0, 0.376);
 }
 
 div#by-color-selector-background {
@@ -49,6 +57,8 @@ div#by-fill-menu > * {
 label.by-text {
   white-space: nowrap;
   flex-grow: 0;
+  color: #c9c9c9;
+  font-size: 12px;
 }
 
 svg > text.by-stroke-text {
@@ -83,21 +93,23 @@ button.by-color-button {
   height: 40px;
   display: block;
   margin: 0 auto;
+  border: 1px solid #555;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
 button.by-input-companion-button {
-  /* flex-grow: 0; */
-  /* line-height: normal; */
   line-height: 1em;
-  /* min-width: 10px; */
-  /* width: 12%; */
   width: 1.2em;
   min-width: 1.2em;
-  padding: 0 0 0 0;
+  padding: 0;
+  cursor: pointer;
 }
 
 span.by-input-label {
-  padding: 0 3px 0 3px;
+  padding: 0 3px;
+  color: #c9c9c9;
+  font-size: 12px;
 }
 
 input.by-text-input,
@@ -105,7 +117,9 @@ input[type=text].by-text-input,
 input[type=number].by-text-input {
   width: 80px;
   background: white;
+  color: black;
   display: list-item;
+  border: 1px solid #555;
 }
 
 input.by-text-input#by-stroke-width {
@@ -125,11 +139,11 @@ select.by-select {
   width: 80px;
   display: list-item;
   background: white;
+  color: black;
+  border: 1px solid #555;
 }
 
 select.by-select#by-fill-type {
   height: auto;
   flex-grow: 0;
 }
-
-/*# sourceMappingURL=module.css.map */

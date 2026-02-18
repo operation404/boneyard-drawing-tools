@@ -5,3 +5,4 @@ export const SETTING_DROPPER_READ_RADIUS = "dropper_read_radius";
 export const SETTINGS_PRESET_COLOR_SWATCHES = "preset_color_swatches";
 export const SETTINGS_RECENT_COLOR_HISTORY = "recent_color_history";
 export const SETTINGS_RECENT_COLORS = "recent_colors";
+export const SETTINGS_WINDOW_POSITION = "window_position";

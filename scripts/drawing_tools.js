@@ -6,6 +6,7 @@ import {
 	SETTINGS_PRESET_COLOR_SWATCHES,
 	SETTINGS_RECENT_COLOR_HISTORY,
 	SETTINGS_RECENT_COLORS,
+	SETTINGS_WINDOW_POSITION,
 } from './constants.js';
 import { Color_Selector } from './color_selector.js';
 
@@ -72,18 +73,41 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 		}
 		const settings = Drawing_Tools.#getSettings();
 		Drawing_Tools._instance = new Drawing_Tools(settings);
-		Drawing_Tools._instance.render(true);
+		// Restore last window position if saved
+		const savedPos = game.settings.get(MODULE, SETTINGS_WINDOW_POSITION);
+		if (savedPos?.left != null && savedPos?.top != null) {
+			Drawing_Tools._instance.render({ force: true, position: savedPos });
+		} else {
+			Drawing_Tools._instance.render(true);
+		}
 	}
 
 	static #prepareHookHandlers() {
 		Hooks.on('getSceneControlButtons', (controls) => Drawing_Tools.#addControlButtons(controls));
 	}
 
+	static #formatKeybinding() {
+		const bindings = game.keybindings.get(MODULE, 'openPanel');
+		if (!bindings?.length) return '';
+		const binding = bindings[0];
+		const parts = [];
+		if (binding.modifiers?.includes('Control')) parts.push('Ctrl');
+		if (binding.modifiers?.includes('Shift')) parts.push('Shift');
+		if (binding.modifiers?.includes('Alt')) parts.push('Alt');
+		// Convert key code like "KeyD" to "D", "Digit1" to "1", etc.
+		const key = binding.key.replace(/^Key/, '').replace(/^Digit/, '');
+		parts.push(key);
+		return parts.join('+');
+	}
+
 	static #addControlButtons(controls) {
+		const shortcut = Drawing_Tools.#formatKeybinding();
+		const label = game.i18n.localize('CONTROLS.QuickDrawConfig');
+		const title = shortcut ? `${label} (${shortcut})` : label;
 		controls.drawings.tools['quick-draw-config'] = {
 			name: 'quick-draw-config',
 			icon: 'fas fa-paint-brush',
-			title: 'CONTROLS.QuickDrawConfig',
+			title: title,
 			onChange: () => {
 				Drawing_Tools.toggle();
 			},
@@ -258,6 +282,11 @@ export class Drawing_Tools extends HandlebarsApplicationMixin(ApplicationV2) {
 	async close(options = {}) {
 		this.#updateDrawingLayerConfig();
 		this.#saveRecentColors();
+		// Save window position for next open
+		const pos = this.position;
+		if (pos?.left != null && pos?.top != null) {
+			game.settings.set(MODULE, SETTINGS_WINDOW_POSITION, { left: pos.left, top: pos.top });
+		}
 		Drawing_Tools._instance = null;
 		return super.close(options);
 	}

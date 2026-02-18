@@ -6,6 +6,7 @@ import {
 	SETTINGS_PRESET_COLOR_SWATCHES,
 	SETTINGS_RECENT_COLOR_HISTORY,
 	SETTINGS_RECENT_COLORS,
+	SETTINGS_WINDOW_POSITION,
 } from './constants.js';
 import { Drawing_Tools } from './drawing_tools.js';
 
@@ -81,6 +82,14 @@ export function prepare_settings() {
 		config: false,
 		type: Array,
 		default: [],
+		requiresReload: false,
+	});
+
+	game.settings.register(MODULE, SETTINGS_WINDOW_POSITION, {
+		scope: 'client',
+		config: false,
+		type: Object,
+		default: {},
 		requiresReload: false,
 	});
 }

@@ -1,3 +1,5 @@
+/* Boneyard Drawing Tools - Color Selector Styles */
+
 label.by-text {
   white-space: nowrap;
   flex-grow: 0;
@@ -24,6 +26,7 @@ button.by-swatch {
   border-radius: 20%;
   padding: 0;
   margin: 0;
+  cursor: pointer;
 }
 
 div#by-preset-swatches-container,
@@ -42,7 +45,7 @@ div#by-recent-swatches-container {
 div#by-dropper-preview {
   border: 2px solid black;
   position: absolute;
-  z-index: 100;
+  z-index: 200;
   display: grid;
   overflow: hidden;
   grid-column-gap: 2%;
@@ -85,14 +88,16 @@ input.by-RGB-input,
 input[type=text].by-RGB-input {
   width: 25px;
   background: white;
+  color: black;
   margin-left: 2px;
   height: fit-content;
+  border: 1px solid #555;
 }
 
 div#by-rgb-input-container > div,
 div#by-dropper-container,
 div#by-random-container {
-  margin: 0 2px 0 2px;
+  margin: 0 2px;
 }
 
 div#by-rgb-input-container > div > label {
@@ -101,9 +106,10 @@ div#by-rgb-input-container > div > label {
 
 button.by-dropper-button {
   line-height: normal;
-  padding: 0 0 0 0;
+  padding: 0;
   height: 20px;
   width: 20px;
+  cursor: pointer;
 }
 
 svg.by-fa-dropper-icon {
@@ -118,5 +124,3 @@ svg.by-fa-dropper-icon {
   stroke-linejoin: round;
   pointer-events: none;
 }
-
-/*# sourceMappingURL=color_selector.css.map */

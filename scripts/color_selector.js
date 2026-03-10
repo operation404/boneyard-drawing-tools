@@ -1,10 +1,12 @@
-if (typeof window.Handlebars === 'undefined') {
-	import('handlebars').then((loaded_module_namespace) => (window.Handlebars = loaded_module_namespace));
-}
-
 export class Color_Selector {
 	static _template = null;
-	static _template_path = `modules/boneyard-drawing-tools/templates/color-selector.hbs`;
+	static _template_path = 'modules/boneyard-drawing-tools/templates/color-selector.hbs';
+
+	static async loadTemplate() {
+		const response = await fetch(Color_Selector._template_path);
+		const data = await response.text();
+		Color_Selector._template = Handlebars.compile(data);
+	}
 
 	static default_options = {
 		canvas_size: 150,
@@ -34,7 +36,7 @@ export class Color_Selector {
 		const blue = rgb_vec[2] / 255;
 		const cmax = Math.max(red, green, blue);
 		const cmin = Math.min(red, green, blue);
-		const chroma = cmax - cmin; // If delta = 0, color is grayscale
+		const chroma = cmax - cmin;
 
 		const value = cmax;
 		let hue = 0;
@@ -44,7 +46,7 @@ export class Color_Selector {
 			if (cmax === red) hue = ((green - blue) / chroma) % 6;
 			if (cmax === green) hue = (blue - red) / chroma + 2;
 			if (cmax === blue) hue = (red - green) / chroma + 4;
-			saturation = chroma / cmax; // cmax can't be 0 if delta isn't 0
+			saturation = chroma / cmax;
 		}
 		hue /= 6;
 		if (hue < 0) hue += 1;
@@ -117,7 +119,7 @@ export class Color_Selector {
 			{{#each colors}}
 				<button class="by-swatch" type="button" style="background: {{this}};"></button>
 			{{/each}}
-        `;
+		`;
 		this.preset_swatches.innerHTML = Handlebars.compile(swatches_template)({
 			colors: this.options.preset_color_swatches,
 		}).trim();
@@ -152,16 +154,14 @@ export class Color_Selector {
 	change_canvas_gradients(color) {
 		if (this._element === undefined) {
 			console.error('No Color_Selector HTML element rendered.');
-			throw 'No Color_Selector HTML element rendered.';
+			throw new Error('No Color_Selector HTML element rendered.');
 		}
-		// horizontal white to passed color
 		const horizontal_gradient = this.canvas_context.createLinearGradient(0, 0, this.canvas_context.canvas.width, 0);
 		horizontal_gradient.addColorStop(0, '#fff');
 		horizontal_gradient.addColorStop(1, color);
 		this.canvas_context.fillStyle = horizontal_gradient;
 		this.canvas_context.fillRect(0, 0, this.canvas_context.canvas.width, this.canvas_context.canvas.height);
 
-		// vertical transparent to black
 		const vertical_gradient = this.canvas_context.createLinearGradient(0, 0, 0, this.canvas_context.canvas.height);
 		vertical_gradient.addColorStop(0, 'rgba(0,0,0,0)');
 		vertical_gradient.addColorStop(1, '#000');
@@ -169,25 +169,17 @@ export class Color_Selector {
 		this.canvas_context.fillRect(0, 0, this.canvas_context.canvas.width, this.canvas_context.canvas.height);
 	}
 
-	activate_listeners(html, color_update_listener) {
-		const color_selector_element = html[0];
-
-		// Canvas has no proper drag event, so have to do mouseup, mousedown, and mousemove
-		// Also need a click listener as mousemove doesn't handle single clicks
+	activate_listeners(parentElement, color_update_listener) {
 		this.canvas_mousemove_wrapper = this.canvas_mousemove_handler.bind(this);
-		color_selector_element
-			.querySelector('#by-color-picker-canvas')
+		this._element.querySelector('#by-color-picker-canvas')
 			.addEventListener('mousedown', (e) => this.canvas_mousedown_handler(e));
-		color_selector_element
-			.querySelector('#by-color-picker-canvas')
+		this._element.querySelector('#by-color-picker-canvas')
 			.addEventListener('click', (e) => this.canvas_click_handler(e));
 
 		this.hue_mousemove_wrapper = this.hue_mousemove_handler.bind(this);
-		color_selector_element
-			.querySelector('#by-hue-siderbar-marker-container')
+		this._element.querySelector('#by-hue-siderbar-marker-container')
 			.addEventListener('mousedown', (e) => this.hue_mousedown_handler(e));
-		color_selector_element
-			.querySelector('#by-hue-siderbar-marker-container')
+		this._element.querySelector('#by-hue-siderbar-marker-container')
 			.addEventListener('click', (e) => this.hue_click_handler(e));
 
 		document.addEventListener('mouseup', (e) => this.mouseup_handler(e));
@@ -226,20 +218,51 @@ export class Color_Selector {
 		this.pixel_ids = ls.reverse().flat();
 		this.pixels = new Uint8Array(this.options.dropper_read_size * this.options.dropper_read_size * 4);
 		this.dropper_preview_template = `
-            <div class="by-circle" id="by-dropper-preview" style="width: {{width}}; height: {{height}}; grid-template-columns: repeat({{p_count}}, 1fr);">
-                {{#each p_ids}}
-                    <div id="by-pixel-{{this}}" style="background-color: #000000;"></div>
-                {{/each}}
-            </div>
-        `;
+			<div class="by-circle" id="by-dropper-preview" style="width: {{width}}; height: {{height}}; grid-template-columns: repeat({{p_count}}, 1fr);">
+				{{#each p_ids}}
+					<div id="by-pixel-{{this}}" style="background-color: #000000;"></div>
+				{{/each}}
+			</div>
+		`;
 		this.move_dropper = (x, y) => {
 			x = (x -= this.options.dropper_preview_size) < 0 ? 0 : x;
 			y = (y -= this.options.dropper_preview_size) < 0 ? 0 : y;
 			this.dropper.style.left = `${x}px`;
 			this.dropper.style.top = `${y}px`;
 		};
-		this.gl = document.querySelector('canvas#board').getContext('webgl2'); // only context foundry canvas supports from what I can tell
 		this.dropper = null;
+	}
+
+	/**
+	 * Read pixel colors from the Foundry canvas at the given screen coordinates using PIXI extract.
+	 * @param {number} screenX - Screen X coordinate
+	 * @param {number} screenY - Screen Y coordinate
+	 * @param {number} size - Width/height of the pixel region to read
+	 * @returns {Uint8Array|Uint8ClampedArray} RGBA pixel data
+	 */
+	_readCanvasPixels(screenX, screenY, size) {
+		const renderer = canvas.app.renderer;
+		const stage = canvas.stage;
+
+		// Convert screen coordinates to canvas world coordinates
+		const transform = stage.worldTransform;
+		const worldX = (screenX - transform.tx) / transform.a;
+		const worldY = (screenY - transform.ty) / transform.d;
+
+		// Create a temporary render texture for the region we want to sample
+		const renderTexture = PIXI.RenderTexture.create({ width: size, height: size });
+
+		// Set up a temporary transform to render the region we want
+		const tempMatrix = new PIXI.Matrix();
+		tempMatrix.translate(-worldX + Math.floor(size / 2), -worldY + Math.floor(size / 2));
+		tempMatrix.scale(transform.a, transform.d);
+
+		renderer.render(stage, { renderTexture, transform: tempMatrix });
+
+		const pixels = renderer.extract.pixels(renderTexture);
+		renderTexture.destroy(true);
+
+		return pixels;
 	}
 
 	dropper_button_handler(e) {
@@ -253,69 +276,46 @@ export class Color_Selector {
 		this.dropper = element_template.content.firstChild;
 		document.body.appendChild(this.dropper);
 
-		// Add click listener to document, check if target is canvas
 		const document_pointerdown_handler = (e) => {
 			if (e.target.id === 'board' && e.target.nodeName === 'CANVAS' && e.button === 0) {
-				window.requestAnimationFrame(() => {
-					this.gl.readPixels(
-						e.clientX * window.devicePixelRatio,
-						this.gl.drawingBufferHeight - e.clientY * window.devicePixelRatio - 1,
-						1,
-						1,
-						this.gl.RGBA,
-						this.gl.UNSIGNED_BYTE,
-						this.pixels
-					);
-					this.update_html_colors(Color_Selector.color_vec_to_str([...this.pixels.slice(0, 3)]), 'dropper');
-				});
+				const pixelData = this._readCanvasPixels(e.clientX, e.clientY, 1);
+				this.update_html_colors(
+					Color_Selector.color_vec_to_str([pixelData[0], pixelData[1], pixelData[2]]),
+					'dropper'
+				);
 			}
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			exit_dropper_mode();
 		};
 
-		// Add mousemove listener too, preview color as mouse moves
 		const document_mousemove_handler = (e) => {
 			this.mouse_pos.x = e.clientX;
 			this.mouse_pos.y = e.clientY;
 			this.move_dropper(e.clientX, e.clientY);
 			if (e.target.id === 'board' && e.target.nodeName === 'CANVAS') {
-				window.requestAnimationFrame(() => {
-					this.gl.readPixels(
-						e.clientX * window.devicePixelRatio - this.offset,
-						this.gl.drawingBufferHeight - (e.clientY * window.devicePixelRatio - this.offset) - 1,
-						this.options.dropper_read_size,
-						this.options.dropper_read_size,
-						this.gl.RGBA,
-						this.gl.UNSIGNED_BYTE,
-						this.pixels
-					);
-					this.pixel_ids.forEach((p) => {
-						if (this.dropper)
-							this.dropper.querySelector(`#by-pixel-${p}`).style['background-color'] =
-								Color_Selector.color_vec_to_str(this.pixels.slice(p * 4, p * 4 + 3));
-					});
+				const pixelData = this._readCanvasPixels(e.clientX, e.clientY, this.options.dropper_read_size);
+				this.pixel_ids.forEach((p) => {
+					if (this.dropper) {
+						const idx = p * 4;
+						this.dropper.querySelector(`#by-pixel-${p}`).style['background-color'] =
+							Color_Selector.color_vec_to_str([pixelData[idx], pixelData[idx + 1], pixelData[idx + 2]]);
+					}
 				});
 			}
 			e.stopImmediatePropagation();
 		};
 
-		// Add key press listener, pressing any key cancels dropper mode
 		const document_keydown_handler = (e) => {
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			exit_dropper_mode();
 		};
 
-		// remove all listeners at the end after a click or key press happens
 		const exit_dropper_mode = () => {
 			document.removeEventListener('pointerdown', document_pointerdown_handler, { capture: true });
-			document.removeEventListener('mousemove', document_mousemove_handler, {
-				capture: true,
-			});
-			document.removeEventListener('keydown', document_keydown_handler, {
-				capture: true,
-			});
+			document.removeEventListener('mousemove', document_mousemove_handler, { capture: true });
+			document.removeEventListener('keydown', document_keydown_handler, { capture: true });
 			this.dropper.remove();
 			this.dropper = null;
 		};
@@ -325,10 +325,7 @@ export class Color_Selector {
 			document_mousemove_handler({
 				clientX: this.mouse_pos.x,
 				clientY: this.mouse_pos.y,
-				target: {
-					id: 'board',
-					nodeName: 'CANVAS',
-				},
+				target: { id: 'board', nodeName: 'CANVAS' },
 				stopImmediatePropagation: () => {},
 			});
 		} else {
@@ -336,15 +333,9 @@ export class Color_Selector {
 		}
 
 		e.stopImmediatePropagation();
-		document.addEventListener('pointerdown', document_pointerdown_handler, {
-			capture: true,
-		});
-		document.addEventListener('mousemove', document_mousemove_handler, {
-			capture: true,
-		});
-		document.addEventListener('keydown', document_keydown_handler, {
-			capture: true,
-		});
+		document.addEventListener('pointerdown', document_pointerdown_handler, { capture: true });
+		document.addEventListener('mousemove', document_mousemove_handler, { capture: true });
+		document.addEventListener('keydown', document_keydown_handler, { capture: true });
 	}
 
 	random_button_handler(e) {
@@ -433,7 +424,6 @@ export class Color_Selector {
 	}
 
 	update_html_colors(color, caller) {
-		// caller can be "canvas", "rgb", "external", "dropper", "random", "swatch"
 		if (caller !== 'canvas') this.update_canvas(color);
 		if (caller !== 'rgb') this.update_rgb_fields(color);
 		if (caller !== 'external') this.color_update_listener?.(color);
@@ -456,6 +446,3 @@ export class Color_Selector {
 	}
 }
 
-fetch(Color_Selector._template_path)
-	.then((response) => response.text())
-	.then((data) => (Color_Selector._template = Handlebars.compile(data)));

@@ -1,2 +1,8 @@
 images/*.psd
 *.bat
+
+# Claude Code
+CLAUDE.md
+.claude/
+
+ai_docs

@@ -6,6 +6,9 @@ A Foundry VTT module that provides quick-access tools for adjusting drawing prop
 
 **Compatibility:** Foundry VTT v13
 
+**Installation:** Browse for "Boneyard Drawing Tools" in the module browser, or [directly copy the manifest link for the latest release](https://github.com/operation404/boneyard-drawing-tools/releases/latest/download/module.json).
+
+
 - [Quick Drawing Settings](#quick-drawing-settings)
 - [Stroke and Fill Settings](#stroke-and-fill-settings)
 - [Color Selector](#color-selector)
